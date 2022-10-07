@@ -1,0 +1,13 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"id":	"98B46E3B-4F5F-4F53-9FDC-0BD69B555DE6",
+	"author":	"Juan Gras ",
+	"description":	{
+		"":	"Gear design add-in for profesionals and enthusiasts alike."
+	},
+	"version":	"1.0.0",
+	"runOnStartup":	true,
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
