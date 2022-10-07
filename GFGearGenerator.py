@@ -2509,7 +2509,6 @@ def stop(context):
         ui = app.userInterface
         if tbPanel:
             tbPanel.deleteMe()
-        ui.messageBox('Stop addin')
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
