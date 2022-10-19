@@ -145,11 +145,12 @@ def parameters(m,z,ap,ah,anchoeng,bool,X,fastcompute):
     return rf,x,y,x2,y2,aok,Tt(da),ra,angrot2,alpha,beta,xneorig,yneorig,zl,xl,yl,xrot,yrot,x2rot,y2rot,xl2,yl2,xrot2,yrot2,x3rot,y3rot,aph,rb,rva,rvf
 #parameters obtiene y arroja los parámetros indispensables para generar el perfil del diente, la hélice etc.
 
-def skeng1(m,ap,rf,ra,x,y,x2,y2,aok,Ttda,escorona,esStdr,espesorc):
+def skeng1(m,ap,rf,ra,x,y,x2,y2,aok,Ttda,escorona,esStdr,espesorc,newComp):
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
         rootComp = design.rootComponent
+        rootComp = newComp
         rcor=ra+espesorc
         sketch=rootComp.sketches.add(rootComp.xYConstructionPlane)
         orig=adsk.core.Point3D.create(0,0,0)
@@ -159,11 +160,16 @@ def skeng1(m,ap,rf,ra,x,y,x2,y2,aok,Ttda,escorona,esStdr,espesorc):
 
         circles=sketch2.sketchCurves.sketchCircles
         circles1=sketch.sketchCurves.sketchCircles
+        dp=2*ra-2*m
+        db=dp*mt.cos(ap)
+        v=0
+        if db<=2*rf:
+            v=2*rf-db
         if escorona==True and esStdr==True:
             circrf=circles.addByCenterRadius(orig,rcor/10)
             circra=circles.addByCenterRadius(orig,rf/10)
         if escorona==True and esStdr==False:
-            circra=circles.addByCenterRadius(orig2,ra/10)
+            circra=circles.addByCenterRadius(orig2,(ra+v)/10)
             circrcor=circles.addByCenterRadius(orig2,rcor/10)
         else:
             circrf=circles.addByCenterRadius(orig,rf/10)
@@ -197,12 +203,8 @@ def skeng1(m,ap,rf,ra,x,y,x2,y2,aok,Ttda,escorona,esStdr,espesorc):
         pointo = adsk.core.Point3D.create(x[aok-1]/10,y[aok-1]/10,0)
         # crear arco en el da
         sketch.sketchCurves.sketchArcs.addByCenterStartSweep(orig,pointo,Ttda)
-        dp=2*ra-2*m
-        db=dp*mt.cos(ap)
-        v=0
-        if db<=2*rf:
-            v=2*rf-db
         if esStdr==False:
+            # Por algun motivo, debo agregar dos circulos para que Fusion note la diferencia entre los perfiles (a pesar de que si los cuenta bien)
             circles.addByCenterRadius(orig2,(ra+v)/10)
         if esStdr==True:
             prof=sketch.profiles.item(0)
@@ -211,12 +213,12 @@ def skeng1(m,ap,rf,ra,x,y,x2,y2,aok,Ttda,escorona,esStdr,espesorc):
         return prof2,prof,sketch
 #skeng1 realiza el sketch base para el cilindro de extrusión y el perfil del diente
 
-def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X):
+def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X, newComp):
     try:
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
-        rootComp = design.rootComponent
+        rootComp = newComp
         sketch=rootComp.sketches.add(rootComp.xYConstructionPlane)
 
         orig=adsk.core.Point3D.create(0,0,0)
@@ -291,12 +293,12 @@ def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X):
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
-def extruir(perfil,anchoeng,u='Escribe: NewBody,Join o Cut'):
+def extruir(perfil,anchoeng,newComp,u='Escribe: NewBody,Join o Cut'):
     try:
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
-        rootComp = design.rootComponent
+        rootComp = newComp
         if u=='NewBody':
             operation=adsk.fusion.FeatureOperations.NewBodyFeatureOperation
         elif u=='Join':
@@ -318,11 +320,11 @@ def extruir(perfil,anchoeng,u='Escribe: NewBody,Join o Cut'):
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 #extruir extruye un  perfil determinado y se puede seleccionar si esta extrusión sera de corte, combinada o un nuevo cuerpo
 
-def cpattern(linecenter,esconico,ra,rf,z,diente,esStdr,anchoeng,u='Escribe si la operación fue Cut o Join para el perfil del diente'):
+def cpattern(linecenter,esconico,ra,rf,z,diente,esStdr,anchoeng,newComp,u='Escribe si la operación fue Cut o Join para el perfil del diente'):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     if esStdr==False and esconico==False:
         sketch=rootComp.sketches.add(rootComp.xYConstructionPlane)
         lines=sketch.sketchCurves.sketchLines
@@ -351,12 +353,12 @@ def cpattern(linecenter,esconico,ra,rf,z,diente,esStdr,anchoeng,u='Escribe si la
 #cpattern crea un patrón circular de cuerpos o features.'esStdr' es para especificar si es una corona distanciada del origen y 'u' es porque las operaciones de corte
 #tienen generan problemas para una compute option de identical(a=1) y por lo tanto debe usarse una de adjust (a=2) aunque sea mas lenta
 
-def helixext(esPS,ra,rf,escorona,aph,sketch,aok,xl,yl,zl,anchoeng,cw,u='Escribe: NewBody,Join o Cut'):
+def helixext(esPS,ra,rf,escorona,aph,sketch,aok,xl,yl,zl,anchoeng,cw,newComp,u='Escribe: NewBody,Join o Cut'):
     try:
         app=adsk.core.Application.get()
         ui=app.userInterface
         design=app.activeProduct
-        rootComp=design.rootComponent
+        rootComp=newComp
         sweeps=rootComp.features.sweepFeatures
         lines=sketch.sketchCurves.sketchLines
         pvec=adsk.core.Point3D.create(0,0,anchoeng/1.25)
@@ -387,7 +389,8 @@ def helixext(esPS,ra,rf,escorona,aph,sketch,aok,xl,yl,zl,anchoeng,cw,u='Escribe:
         #helicl=sketch.sketchCurves.sketchFittedSplines.add(helice)
         #path=adsk.fusion.Path.create(helicl,0)
         lpath=lines.addByTwoPoints(orig, pvec)
-        path2=adsk.fusion.Path.create(lpath, 0)
+        #path2=adsk.fusion.Path.create(lpath, 0)
+        path2=newComp.features.createPath(lpath, False)
         esq= rootComp.sketches.item(rootComp.sketches.count-2)
         prof=esq.profiles.item(0)
         sweepInput=sweeps.createInput(prof,path2,operation)
@@ -401,31 +404,35 @@ def helixext(esPS,ra,rf,escorona,aph,sketch,aok,xl,yl,zl,anchoeng,cw,u='Escribe:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 #helixt extruye un perfil (sketch) sobre la helice calculada en parameters() y se debe especificar el tipo de operacion del barrido
 
-def excesscut(ra,rf,espesorc,anchoeng):
-    app = adsk.core.Application.get()
-    ui = app.userInterface
-    design = app.activeProduct
-    rootComp = design.rootComponent
-    rcor = ra + espesorc
-    sketch = rootComp.sketches.add(rootComp.xYConstructionPlane)
-    orig = adsk.core.Point3D.create(0, 0, 0)
-    orig2 = adsk.core.Point3D.create((rf + ra) / 10, 0, 0)
-    extrudes = rootComp.features.extrudeFeatures
-    circles1 = sketch.sketchCurves.sketchCircles
-    circles1.addByCenterRadius(orig2,(ra+rf+rcor)/10)
-    circles1.addByCenterRadius(orig2,(rcor)/10)
-    prof=sketch.profiles.item(0)
-    extInput=extrudes.createInput(prof,adsk.fusion.FeatureOperations.CutFeatureOperation)
-    extInput.setDistanceExtent(False, adsk.core.ValueInput.createByReal(2*anchoeng+1))
-    extrusion = extrudes.add(extInput)
+def excesscut(ra,rf,espesorc,anchoeng,newComp):
+    try:
+        app = adsk.core.Application.get()
+        ui = app.userInterface
+        design = app.activeProduct
+        rootComp = newComp
+        rcor = ra + espesorc
+        sketch = rootComp.sketches.add(rootComp.xYConstructionPlane)
+        orig = adsk.core.Point3D.create(0, 0, 0)
+        orig2 = adsk.core.Point3D.create((rf + ra) / 10, 0, 0)
+        extrudes = rootComp.features.extrudeFeatures
+        circles1 = sketch.sketchCurves.sketchCircles
+        circles1.addByCenterRadius(orig2,(ra+rf+rcor)/10)
+        circles1.addByCenterRadius(orig2,(rcor)/10)
+        prof=sketch.profiles.item(0)
+        extInput=extrudes.createInput(prof,adsk.fusion.FeatureOperations.CutFeatureOperation)
+        extInput.setDistanceExtent(False, adsk.core.ValueInput.createByReal(2*anchoeng+1))
+        extrusion = extrudes.add(extInput)
+    except:
+        if ui:
+            ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 #Corta el exceso de los perfiles de diente en coronas no estándar
 
-def mirror(sketch,anchoeng,cara):
+def mirror(sketch,anchoeng,cara,newComp):
     try:
         app=adsk.core.Application.get()
         ui=app.userInterface
         design=app.activeProduct
-        rootComp=design.rootComponent
+        rootComp=newComp
         sweeps=rootComp.features.sweepFeatures
         lines=sketch.sketchCurves.sketchLines
         pvec=adsk.core.Point3D.create(0,0,anchoeng)
@@ -458,7 +465,7 @@ def mirror(sketch,anchoeng,cara):
         CombineInput.isNewComponent=False
         rootComp.features.combineFeatures.add(CombineInput)
         sketch.isVisible=False
-        uj.isVisible=False
+        #uj.isVisible=False
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -497,12 +504,12 @@ def planecut(espesorc,ra,rf,anchoeng,esStdr):
 #planecut crea un plano y un sketch con un circulo que después corta el sobrante del perfil del diente (por eso se extruye 1.25*anchoeng)
 #Es necesario que el plano quede un poco arriba del diente para que al cortarlo no genere problemas
 
-def combine(z):
+def combine(z,newComp):
     try:
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
-        rootComp = design.rootComponent
+        rootComp = newComp
         conta=(rootComp.bRepBodies.count)-1
         conta2=rootComp.bRepBodies.count
         Targetbody=rootComp.bRepBodies.item(conta-z)
@@ -519,12 +526,12 @@ def combine(z):
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 #combine combina todos los perfiles de los dientes helicoidales con el cilindro notese que los 'conta' son utilizaos para poder crear engranes cuando ya hay otras piezas
 
-def crwoncut(anchoeng,rb,rf,ra,espesorc):
+def crwoncut(anchoeng,rb,rf,ra,espesorc, newComp):
     try:
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
-        rootComp = design.rootComponent
+        rootComp = newComp
         extrudes=rootComp.features.extrudeFeatures
         orig=adsk.core.Point3D.create(0,0,0)
         orig2=adsk.core.Point3D.create((ra+rf)/10,0,0)
@@ -544,13 +551,12 @@ def crwoncut(anchoeng,rb,rf,ra,espesorc):
 #interrseciona a la involuta por eso en skeng hay una condición basada en el db y df por lo que si el espesor radial de la corona no stdr es chico tiene que usarse
 #un corte para eliminar el sobrante
 
-def rev(prof,eje,u='Escribe: NewBody,Join o Cut'):
+def rev(prof, eje, newComp, u='Escribe: NewBody,Join o Cut'):
     try:
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
-        rootComp = design.rootComponent
-        extrudes = rootComp.features.extrudeFeatures
+        rootComp = newComp
         revolvefeats = rootComp.features.revolveFeatures
         if u=='NewBody':
             operation = adsk.fusion.FeatureOperations.NewBodyFeatureOperation
@@ -571,7 +577,7 @@ def rev(prof,eje,u='Escribe: NewBody,Join o Cut'):
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 #rev crea una revolución de un perfil ya hecho sobre un eje dado
 
-def sketchcon(x,y,x2,y2,z,z2,rp,rp2,rf,ra,Ttda,m,aok):
+def sketchcon(x,y,x2,y2,z,z2,rp,rp2,rf,ra,Ttda,m,aok, newComp):
     try:
         aconico=mt.atan(z/z2)
         h=2.25*m
@@ -579,7 +585,7 @@ def sketchcon(x,y,x2,y2,z,z2,rp,rp2,rf,ra,Ttda,m,aok):
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
-        rootComp = design.rootComponent
+        rootComp = newComp
         sketch = rootComp.sketches.add(rootComp.xYConstructionPlane)
         orig = adsk.core.Point3D.create(0,0,0)
         planes = rootComp.constructionPlanes
@@ -636,8 +642,8 @@ def sketchcon(x,y,x2,y2,z,z2,rp,rp2,rf,ra,Ttda,m,aok):
         linepp=lines.addByTwoPoints(puntocon,puntop)
         linecenter=lines.addByTwoPoints(puntosup,puntocon)
 
-        path=adsk.fusion.Path.create(linepp, 0)
-        guiderail=adsk.fusion.Path.create(linead, 0)
+        path=newComp.features.createPath(linepp, False)
+        guiderail=newComp.features.createPath(linead, False)
 
         Ao=mt.sqrt((rp**2)+(rp2**2))
         F=Ao/3
@@ -682,16 +688,16 @@ def sketchcon(x,y,x2,y2,z,z2,rp,rp2,rf,ra,Ttda,m,aok):
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 #crea el sketch del perfil para los engranes cónicos
 
-def sweep(prof,path,guiderail,linepp,linead):
+def sweep(prof,path,guiderail,linepp,linead, newComp):
     try:
         app=adsk.core.Application.get()
         ui=app.userInterface
         design=app.activeProduct
-        rootComp=design.rootComponent
+        rootComp=newComp
         sweeps=rootComp.features.sweepFeatures
 
-        path=adsk.fusion.Path.create(linepp, 0)
-        guiderail=adsk.fusion.Path.create(linead, 0)
+        path=newComp.features.createPath(linepp, False)
+        guiderail=newComp.features.createPath(linead, False)
         sweepInput=sweeps.createInput(prof, path, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
         sweepInput.path=path
         sweepInput.guideRail=guiderail
@@ -702,21 +708,23 @@ def sweep(prof,path,guiderail,linepp,linead):
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-def rotcon(rf,aconico):
+def rotcon(rf,aconico, occ):
     try:
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
         rootComp = design.rootComponent
+
         vec=adsk.core.Vector3D.create(0, 1, 0)
-        cuento=rootComp.bRepBodies.count
-        objc=adsk.core.ObjectCollection.create()
-        objc.add(rootComp.bRepBodies.item(cuento-1))
+        # cuento=rootComp.bRepBodies.count
+        # objc=adsk.core.ObjectCollection.create()
+        # objc.add(rootComp.bRepBodies.item(cuento-1))
         transform = adsk.core.Matrix3D.create()
         transform.setToRotation(-aconico,vec,adsk.core.Point3D.create((rf) / 10, 0, 0))
-        movefeats = rootComp.features.moveFeatures
-        movefeatureInput = movefeats.createInput(objc,transform)
-        movefeats.add(movefeatureInput)
+        occ.transform2 = transform
+        # movefeats = rootComp.features.moveFeatures
+        # movefeatureInput = movefeats.createInput(objc,transform)
+        # movefeats.add(movefeatureInput)
 
     except:
         if ui:
@@ -741,7 +749,36 @@ def movebody(x,y,z):
     movefeats=rootComp.features.moveFeatures
 #mueve el último cuerpo creado
 
-def wormhelix(m,z,ap,radio,fastcompute,largotornillo,cw):
+def moveocc(x,y,z,occ):
+    app=adsk.core.Application.get()
+    ui=app.userInterface
+    design=app.activeProduct
+    rootComp=design.rootComponent
+
+    transform=adsk.core.Matrix3D.create()
+    transform.translation=adsk.core.Vector3D.create(x,y,z)
+    occ.transform2 = transform
+#Mueve el componente (por medio de la ocurrencia, el componente como tal no se puede mover)
+
+def moveLastComponentBody(x, y, z, component):
+    app=adsk.core.Application.get()
+    ui=app.userInterface
+    design=app.activeProduct
+    rootComp=component
+
+    cuento=rootComp.bRepBodies.count
+    objc=adsk.core.ObjectCollection.create()
+    objc.add(rootComp.bRepBodies.item(cuento-1))
+    
+    transform=adsk.core.Matrix3D.create()
+    transform.translation=adsk.core.Vector3D.create(x,y,z)
+    
+    movefeats=rootComp.features.moveFeatures
+    movefeatureInput=movefeats.createInput(objc,transform)
+    movefeats.add(movefeatureInput)
+
+
+def wormhelix(m,z,ap,radio,fastcompute,largotornillo,cw, newComp):
     try:
         cuerdas=round(largotornillo/(mt.pi*m))
         p=mt.pi*m
@@ -767,7 +804,7 @@ def wormhelix(m,z,ap,radio,fastcompute,largotornillo,cw):
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
-        rootComp = design.rootComponent
+        rootComp = newComp
         sketch5=rootComp.sketches.add(rootComp.xYConstructionPlane)
         sketch6=rootComp.sketches.add(rootComp.xYConstructionPlane)
         sketch3=rootComp.sketches.add(rootComp.xYConstructionPlane)
@@ -834,13 +871,13 @@ def wormhelix(m,z,ap,radio,fastcompute,largotornillo,cw):
         extinput62.setDistanceExtent(False, adsk.core.ValueInput.createByReal(-((mt.pi*m/4)+(1.30*m)/(mt.tan(mt.pi/2-ap)))/10))
         extrudes.add(extinput62)
 
-        path=adsk.fusion.Path.create(cirqulo,0)
+        path=newComp.features.createPath(cirqulo,False)
         loft=rootComp.features.loftFeatures
-        input=loft.createInput(adsk.fusion.FeatureOperations.JoinFeatureOperation)
+        input=loft.createInput(adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
         loftobj = input.loftSections
 
 
-        input2 = loft.createInput(adsk.fusion.FeatureOperations.JoinFeatureOperation)
+        input2 = loft.createInput(adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
         loftobj2 = input2.loftSections
         if cw==False:
             loftobj.add(prof1)
@@ -873,11 +910,11 @@ def wormhelix(m,z,ap,radio,fastcompute,largotornillo,cw):
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-def linearpattern(body,p,cuerdas,espacioentre):
+def linearpattern(body,p,cuerdas,espacioentre, newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
 
     inputEntites=adsk.core.ObjectCollection.create()
     inputEntites.add(body)
@@ -928,7 +965,7 @@ def rowbodymove(numerodecomponentes,radioext):
         movefeats.add(movefeatureInput)
 #Mueve la cantidad de cuerpos (los últimos creados) especificados como conjunto en la dirección especificada
 
-def planetgearsdr(m1,zp1,ap1,aok,anchoeng):
+def planetgearsdr(m1,zp1,ap1,aok,anchoeng,newComp):
     list3=parameters(m1,zp1,ap1,0,anchoeng,False,0,aok)
     rf=list3[0]
     x=list3[1]
@@ -938,13 +975,13 @@ def planetgearsdr(m1,zp1,ap1,aok,anchoeng):
     aok=list3[5]
     Ttda=list3[6]
     ra=list3[7]
-    prof=skeng1(m1,ap1,rf,ra,x,y,x2,y2,aok,Ttda,False,True,0)
-    extruir(prof[0],anchoeng,'NewBody')
-    diente=extruir(prof[1],anchoeng,'NewBody')
-    cpattern(1,False,ra,rf,zp1,diente[0],True,anchoeng)
-    combine(zp1)
+    prof=skeng1(m1,ap1,rf,ra,x,y,x2,y2,aok,Ttda,False,True,0,newComp)
+    extruir(prof[0],anchoeng,newComp,'NewBody')
+    diente=extruir(prof[1],anchoeng,newComp,'NewBody')
+    cpattern(1,False,ra,rf,zp1,diente[0],True,anchoeng,newComp, 'Join')
+    combine(zp1,newComp)
 
-def coronastd(aaok,z,m,ap,anchoeng,espesorc):
+def coronastd(aaok,z,m,ap,anchoeng,espesorc,newComp):
     list3 = parameters(m, z, ap, 0, anchoeng, False, 0, aaok)
     rf = list3[0]
     x = list3[1]
@@ -954,18 +991,18 @@ def coronastd(aaok,z,m,ap,anchoeng,espesorc):
     aok = list3[5]
     Ttda = list3[6]
     ra = list3[7]
-    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, True, True, espesorc)
-    extruir(perfil[0], anchoeng, 'NewBody')
-    diente = extruir(perfil[1], anchoeng, 'Cut')
-    cpattern(1, False, ra, rf, z, diente, True, anchoeng, 'Join')
+    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, True, True, espesorc,newComp)
+    extruir(perfil[0], anchoeng, newComp, 'NewBody')
+    diente = extruir(perfil[1], anchoeng, newComp, 'Cut')
+    cpattern(1, False, ra, rf, z, diente, True, anchoeng, newComp, 'Join')
 
 
 
-def coronasnostd(aaok,z,m,anchoeng,ap,espesorc):
+def coronasnostd(aaok,z,m,anchoeng,ap,espesorc,newComp,occ):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     list3 = parameters(m, z, ap, 0, anchoeng, False, 0, aaok)
     rf = list3[0]
     x = list3[1]
@@ -976,21 +1013,24 @@ def coronasnostd(aaok,z,m,anchoeng,ap,espesorc):
     Ttda = list3[6]
     ra = list3[7]
     rb = list3[27]
-    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, True, False, espesorc)
+    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, True, False, espesorc,newComp)
     esque= rootComp.sketches.item(rootComp.sketches.count-1)
     profe= esque.profiles.item(0)
-    extruir(profe, anchoeng, 'NewBody')
-    dienton = extruir(perfil[1], anchoeng, 'NewBody')
+    extruir(profe, anchoeng, newComp, 'NewBody')
+    dienton = extruir(perfil[1], anchoeng, newComp, 'NewBody')
     diente=dienton[0]
-    cpattern(1, False, ra, rf, z, diente, False, anchoeng, 'Join')
-    combine(z)
+    cpattern(1, False, ra, rf, z, diente, False, anchoeng, newComp, 'Join')
+    combine(z, newComp)
     if rf >= rb and espesorc <= rf - rb:
-        crwoncut(anchoeng, rb, rf, ra, espesorc)
+        crwoncut(anchoeng, rb, rf, ra, espesorc, newComp)
     if (ra + espesorc) < (rf + ra):
-        excesscut(ra, rf, espesorc, anchoeng)
-    movebody((-m*z)/10,0,0)
+        excesscut(ra, rf, espesorc, anchoeng, newComp)
+    moveocc((-m*z)/10,0,0,occ)
+    #movebody((-m*z)/10,0,0)
 
-def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,):
+def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp):
+    app = adsk.core.Application.get()
+    ui  = app.userInterface
     mult1 = 1
     if dh == True:
         mult1 = 2
@@ -1007,26 +1047,26 @@ def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,):
     xl = list3[20]
     yl = list3[21]
     aph = list3[26]
-    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, False, True, 0)
-    car=extruir(perfil[0], anchoeng, 'NewBody')
+    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, False, True, 0,newComp)
+    car=extruir(perfil[0], anchoeng,newComp, 'NewBody')
     cara=car[1]
     try:
-        dienton=helixext(perfil[1], ra, rf, False, ah, perfil[2], aok, xl, yl, zl, 1.25 * anchoeng,cw,'NewBody')
+        dienton=helixext(perfil[1], ra, rf, False, ah, perfil[2], aok, xl, yl, zl, 1.25 * anchoeng,cw,newComp,'NewBody')
         diente = dienton[0]
-        cpattern(1, False, ra, rf, z, diente, True, anchoeng, 'Join')
-        combine(z)
+        cpattern(1, False, ra, rf, z, diente, True, anchoeng, newComp,'Join')
+        combine(z,newComp)
         if dh == True:
-            mirror(perfil[2], anchoeng,False)
+           mirror(perfil[2], anchoeng,False,newComp)
 
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-def coronashelstdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah):
+def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     mult1 = 1
     if dh == True:
         mult1 = 2
@@ -1043,24 +1083,24 @@ def coronashelstdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah):
     xl = list3[20]
     yl = list3[21]
     aph = list3[26]
-    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, True, True, espesorc)
-    car=extruir(perfil[0], anchoeng, 'NewBody')
+    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, True, True, espesorc, newComp)
+    car=extruir(perfil[0], anchoeng, newComp, 'NewBody')
     cara=car[1]
-    diente = helixext(False, ra, rf, False, ah, perfil[2], aok, xl, yl, zl, 1.25*anchoeng,cw,'Cut')
-    cpattern(1, False, ra, rf, z, diente[0], True, anchoeng, 'Cut')
+    diente = helixext(False, ra, rf, False, ah, perfil[2], aok, xl, yl, zl, 1.25*anchoeng,cw, newComp, 'Cut')
+    cpattern(1, False, ra, rf, z, diente[0], True, anchoeng, newComp, 'Cut')
     mainBody=rootComp.bRepBodies.item(0)
 
     if dh == True:
-        mirror(perfil[2], anchoeng,False)
+        mirror(perfil[2], anchoeng, False, newComp)
         #planos = rootComp.constructionPlanes
         #planos.item(0).isVisible = False
 
 
-def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah):
+def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     mult1 = 1
     if dh == True:
         mult1 = 2
@@ -1078,45 +1118,52 @@ def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah):
     yl = list3[15]
     aph = list3[26]
     rb = list3[27]
-    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, True, False, espesorc)
+    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, True, False, espesorc, newComp)
     esque = rootComp.sketches.item(rootComp.sketches.count - 1)
     profe = esque.profiles.item(0)
-    extruir(profe,anchoeng, 'NewBody')
-    dienton=helixext(False, ra, rf, True, ah, perfil[2], aok, xl, yl, zl, 1.25 * anchoeng,cw,'NewBody')
+    extruir(profe,anchoeng, newComp, 'NewBody')
+    dienton=helixext(False, ra, rf, True, ah, perfil[2], aok, xl, yl, zl, 1.25 * anchoeng,cw, newComp, 'NewBody')
     diente= dienton[0]
-    cpattern(1, False, ra, rf, z, diente, False, anchoeng, 'Join')
-    combine(z)
+    cpattern(1, False, ra, rf, z, diente, False, anchoeng, newComp, 'Join')
+    combine(z, newComp)
     if dh == True:
-        mirror(perfil[2], anchoeng,False)
+        mirror(perfil[2], anchoeng,False, newComp)
     if rf >= rb and espesorc <= rf - rb:
-        crwoncut(anchoeng, rb, rf, ra, espesorc)
+        crwoncut(anchoeng, rb, rf, ra, espesorc, newComp)
     if (ra + espesorc) < (rf + ra):
-        excesscut(ra, rf, espesorc, anchoeng)
-    movebody((-m*z)/10,0,0)
+        excesscut(ra, rf, espesorc, anchoeng,newComp)
+    moveocc((-m*z)/10,0,0,occ)
     if rootComp.constructionPlanes.isValid==True:
         planos=rootComp.constructionPlanes
         planos.item(0).isVisible=False
 
-def hidebodies():
+def hidebodies(newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
-    design = app.activeProduct
+    design = adsk.fusion.Design.cast(app.activeProduct)
+    rootComp = newComp
     rootComp = design.rootComponent
 
+    # design = adsk.fusion.Design.cast(app.activeProduct)
+    # root = design.activeComponent
+    # newComp = root.occurrences.count
+
     list=[]
-    cuento = rootComp.bRepBodies.count
-    for i in range(0,cuento):
-        body=rootComp.bRepBodies.item(i)
-        list.append(body)
-        body.isVisible=False
+    for j in range(0, rootComp.occurrences.count):
+        Comp = rootComp.occurrences.item(j)
+        cuento = Comp.bRepBodies.count
+        for i in range(0,cuento):
+            body=Comp.bRepBodies.item(i)
+            list.append(body)
+            body.isVisible=False
     return list
 #Esconde todos los cuerpos existentes en la pestaña para evitar posibles interferencias
 
-def showhiddenbodies(bodies):
+def showhiddenbodies(bodies,newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
 
     for i in range(0,len(bodies)):
         bodies[i].isVisible=True
@@ -1153,7 +1200,9 @@ def hideplanes():
     for i in range(0,cuento):
         planos.item(i).isVisible = False
 
-def heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok):
+def heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp):
+    app = adsk.core.Application.get()
+    ui = app.userInterface
     list3 = parameters(m, z, ap, worm[3], 1.25 * anchoeng, vul, 0, aaok)
     rf = list3[0]
     x = list3[1]
@@ -1167,22 +1216,22 @@ def heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok):
     xl = list3[20]
     yl = list3[21]
     aph = list3[26]
-    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, False, True, 0)
-    extruir(perfil[0], anchoeng, 'NewBody')
+    perfil = skeng1(m, ap, rf, ra, x, y, x2, y2, aok, Ttda, False, True, 0, newComp)
+    extruir(perfil[0], anchoeng, newComp, 'NewBody')
     try:
-        dienton= helixext(False, ra, rf, False, worm[3], perfil[2], aok, xl, yl, zl, 1.25 * anchoeng,vul, 'NewBody')
+        dienton= helixext(False, ra, rf, False, worm[3], perfil[2], aok, xl, yl, zl, 1.25 * anchoeng,vul, newComp, 'NewBody')
         diente = dienton[0]
-        cpattern(1, False, ra, rf, z, diente, True, anchoeng, 'Join')
-        combine(z)
+        cpattern(1, False, ra, rf, z, diente, True, anchoeng, newComp, 'Join')
+        combine(z, newComp)
         if vul2 == True:
-            mirror(perfil[2], anchoeng)
+            mirror(perfil[2], anchoeng, newComp)
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
     # movebody(0,0,-(anchoeng)/2)
     # wormcut(m,z,radio)
 
-def wormhelix2(m,z,ap,radio,fastcompute,cuerdas,cw,anchoeng):
+def wormhelix2(m,z,ap,radio,fastcompute,cuerdas,cw,anchoeng, newComp):
     try:
         p=mt.pi*m
         radio=radio+1.25*m
@@ -1207,7 +1256,7 @@ def wormhelix2(m,z,ap,radio,fastcompute,cuerdas,cw,anchoeng):
         app = adsk.core.Application.get()
         ui = app.userInterface
         design = app.activeProduct
-        rootComp = design.rootComponent
+        rootComp = newComp
         sketch5=rootComp.sketches.add(rootComp.xYConstructionPlane)
         sketch6=rootComp.sketches.add(rootComp.xYConstructionPlane)
         sketch3=rootComp.sketches.add(rootComp.xYConstructionPlane)
@@ -1278,7 +1327,7 @@ def wormhelix2(m,z,ap,radio,fastcompute,cuerdas,cw,anchoeng):
         extinputuno.setSymmetricExtent(adsk.core.ValueInput.createByReal((anchoeng)),True)
         extrudes.add(extinputuno)
 
-        path=adsk.fusion.Path.create(cirqulo,0)
+        path=newComp.features.createPath(cirqulo,False)
         loft=rootComp.features.loftFeatures
         input=loft.createInput(adsk.fusion.FeatureOperations.CutFeatureOperation)
         loftobj = input.loftSections
@@ -1313,12 +1362,12 @@ def wormhelix2(m,z,ap,radio,fastcompute,cuerdas,cw,anchoeng):
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-def indcpattern(feature,linecenter,z):
+def indcpattern(feature,linecenter,z, newComp):
     a=feature
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     eje = linecenter
     inputEntites = adsk.core.ObjectCollection.create()
     inputEntites.add(feature)
@@ -1331,11 +1380,11 @@ def indcpattern(feature,linecenter,z):
     circularFeatInput.patternComputeOption = a
     circularFeat = circularFeats.add(circularFeatInput)
 
-def cremsketch(m,z,h,ap,T,altura,anchoeng,ah):
+def cremsketch(m,z,h,ap,T,altura,anchoeng,ah,newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     # hacer un sketch
     sketch = rootComp.sketches.add(rootComp.xYConstructionPlane)
     orig = adsk.core.Point3D.create(0, 0, 0)
@@ -1368,7 +1417,7 @@ def cremsketch(m,z,h,ap,T,altura,anchoeng,ah):
 
     punton=adsk.core.Point3D.create((anchoeng*mt.sin(ah)),0,anchoeng)
     pat=lines.addByTwoPoints(orig,punton)
-    path=adsk.fusion.Path.create(pat,0)
+    path=newComp.features.createPath(pat,False)
 
     lines2 = sketch2.sketchCurves.sketchLines
     dtotal = (z - 1) * mt.pi * m + T + 2.5 * m * mt.tan(ap)+(anchoeng*mt.sin(ah))*10
@@ -1382,7 +1431,7 @@ def cremsketch(m,z,h,ap,T,altura,anchoeng,ah):
     lines2.addByTwoPoints(puntoab1, pt3)
     lines2.addByTwoPoints(pt3, pt2)
     prof2 = sketch2.profiles.item(0)
-    plinea=adsk.fusion.Path.create(linea,0)
+    plinea=newComp.features.createPath(linea,False)
 
     plineaneg=0
     prof3=0
@@ -1414,18 +1463,18 @@ def cremsketch(m,z,h,ap,T,altura,anchoeng,ah):
         #crea el path negativo
         lineaneg = lines.addByTwoPoints(punto4, adsk.core.Point3D.create(-1, 0, 0))
         lineaneg.isConstruction=True
-        plineaneg = adsk.fusion.Path.create(lineaneg, 0)
+        plineaneg = newComp.features.createPath(lineaneg, False)
 
 
 
 
     return prof,path,prof2,plinea,cantidad,plineaneg,prof3,prof32
 
-def simplesweep(prof,path):
+def simplesweep(prof,path,newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     try:
         sweeps=rootComp.features.sweepFeatures
         sweepInput=sweeps.createInput(prof, path, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
@@ -1436,11 +1485,11 @@ def simplesweep(prof,path):
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-def cremspatt(body,path,z,paso):
+def cremspatt(body,path,z,paso,newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     pathpattern = rootComp.features.pathPatternFeatures
     inputentites = adsk.core.ObjectCollection.create()
     inputentites.add(body)
@@ -1450,11 +1499,11 @@ def cremspatt(body,path,z,paso):
     patternInput = pathpattern.createInput(inputentites, path, quantity, p, 1)
     pathpattern.add(patternInput)
 
-def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,espesorc,z2,radiotornillo,X):
+def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,espesorc,z2,radiotornillo,X,newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
-    rootComp = design.rootComponent
+    rootComp = newComp
     # hacer un sketch
     cadena="FC=" + str(Fc) + " m=" + str(modulo) + " PA=" + str(radToDeg(ap)) + "°" + " z=" + str(z)
     if escorona==True and eshelicoidal==False:
@@ -1489,12 +1538,15 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inputs=cmd.commandInputs
         ValueInput1=adsk.core.ValueInput.createByReal(1)
 
+        # Fusion's default units are cm, since your units are mm you'll need to divide that value with 10
+        # a ValueInput = 1 will show as 10mm
         aaok=inputs.addBoolValueInput('aok1','Fast Compute',True,'',defaultfc)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput1','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput1','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner1', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput1', 'Gear height [mm]', 'mm', ValueInput1)
         inputs.addFloatSpinnerCommandInput('FloatSpinner1', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1516,11 +1568,12 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput22=adsk.core.ValueInput.createByReal(.5)
 
         aaok2=inputs.addBoolValueInput('aok2', 'Fast Compute', True, '', defaultfc)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput2','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput2','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner2', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput2', 'Gear height [mm]', 'mm', ValueInput2)
         inputs.addFloatSpinnerCommandInput('FloatSpinner2', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1543,11 +1596,12 @@ class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput32=adsk.core.ValueInput.createByReal(0.5)
 
         aaok3=inputs.addBoolValueInput('aok3', 'Fast Compute', True, '', defaultfc)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput3','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput3','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner3', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput3', 'Gear height [mm]', 'mm', ValueInput3)
         inputs.addFloatSpinnerCommandInput('FloatSpinner3', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1572,11 +1626,12 @@ class cmdDef4PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         aaok4=inputs.addBoolValueInput('aok4', 'Fast Compute', True, '', defaultfc)
         inputs.addBoolValueInput('BoolValue4', 'Clock Wise', True, '', False)
         inputs.addBoolValueInput('BoolValue42','Double Helical',True,'',False)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput4','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput4','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner4', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput4', 'Gear height [mm]', 'mm', ValueInput4)
         inputs.addFloatSpinnerCommandInput('FloatSpinner4', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1602,11 +1657,12 @@ class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         aaok5=inputs.addBoolValueInput('aok5', 'Fast Compute', True, '', defaultfc)
         inputs.addBoolValueInput('BoolValue5', 'Clock Wise', True, '', False)
         inputs.addBoolValueInput('BoolValue52','Double Helical',True,'',False)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput5','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput5','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner5', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput5', 'Gear height [mm]', 'mm', ValueInput5)
         inputs.addFloatSpinnerCommandInput('FloatSpinner5', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1633,11 +1689,12 @@ class cmdDef6PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         aaok6=inputs.addBoolValueInput('aok6', 'Fast Compute', True, '', defaultfc)
         inputs.addBoolValueInput('BoolValue6', 'Clock Wise', True, '', False)
         inputs.addBoolValueInput('BoolValue62','Double Helical',True,'',False)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput6','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput6','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner6', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput6', 'Gear height [mm]', 'mm', ValueInput6)
         inputs.addFloatSpinnerCommandInput('FloatSpinner6', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1659,11 +1716,12 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inputs=cmd.commandInputs
         ValueInput7 = adsk.core.ValueInput.createByReal(1)
 
-        u = inputs.addDropDownCommandInput('DropDownCommandInput7', 'Module [mm]', 1)
-        qty = u.listItems
-        qty.add('0.3 mm', True, 'si')
-        for nn in range(0, len(list)):
-            qty.add(list[nn], False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u = inputs.addDropDownCommandInput('DropDownCommandInput7', 'Module [mm]', 1)
+        # qty = u.listItems
+        # qty.add('0.3 mm', True, 'si')
+        # for nn in range(0, len(list)):
+        #     qty.add(list[nn], False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner7', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput7', 'Rack thickness [mm]', 'mm', ValueInput7)
         inputs.addFloatSpinnerCommandInput('FloatSpinner7', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1685,11 +1743,12 @@ class cmdDef8PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput8=adsk.core.ValueInput.createByReal(1)
 
         aaok8=inputs.addBoolValueInput('aok8', 'Fast Compute', True, '', defaultfc)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput8','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput8','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner8', 'Number of teeth for the wheel [ ]', 6, 250, 1, 17)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner82', 'Number of teeth for the pinion [ ]', 6, 250, 1, 17)
         inputs.addFloatSpinnerCommandInput('FloatSpinner8', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1710,11 +1769,12 @@ class cmdDef9PressedEventHandler(adsk.core.CommandCreatedEventHandler):
 
         aaok9=inputs.addBoolValueInput('aok9','Fast Compute', True, '', defaultfc)
         inputs.addFloatSpinnerCommandInput('FloatSpinner92','Profile shifting coefficient "X" [ ]','',-1,1,.01,0)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput9','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput9','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner9', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput9', 'Gear height [mm]', 'mm', ValueInput9)
         inputs.addFloatSpinnerCommandInput('FloatSpinner9', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1738,11 +1798,12 @@ class cmdDef10PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inputs.addBoolValueInput('BoolValue10', 'Clock Wise', True, '', False)
         inputs.addBoolValueInput('BoolValue102','Double Helical',True,'',False)
         inputs.addFloatSpinnerCommandInput('FloatSpinner103','Profile shifting coefficient "X" [ ]','',-1,1,.01,0)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput10','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput10','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner10', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('ValueInput10', 'Gear height [mm]', 'mm', ValueInput10)
         inputs.addFloatSpinnerCommandInput('FloatSpinner10', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
@@ -1773,11 +1834,12 @@ class cmdDef11PressedEventHandler(adsk.core.CommandCreatedEventHandler):
 
         #usar clock wise como rosca izquierda o derecha
         inputs.addBoolValueInput('BoolValue11', 'Left threaded', True, '', False)
-        u=inputs.addDropDownCommandInput('DropDownCommandInput11','Module [mm]',1)
-        qty=u.listItems
-        qty.add('0.3 mm',True,'si')
-        for nn in range(0,len(list)):
-            qty.add(list[nn],False)
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput11','Module [mm]',1)
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner11', 'Number of teeth [ ]', 6, 250, 1, 17)
         inputs.addValueInput('IntegerSpinner112','Worm length [mm]','mm',ValueInput112)
         inputs.addValueInput('ValueInput11', 'Worm gear height [mm]', 'mm', ValueInput11)
@@ -1803,16 +1865,23 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('aok1').value
             z=inputs2.itemById('IntegerSpinner1').value
-            q=inputs2.itemById('DropDownCommandInput1').selectedItem.name
+            #q=inputs2.itemById('DropDownCommandInput1').selectedItem.name
             anchoeng=inputs2.itemById('ValueInput1').value
-            a=str(q[0:len(q)-3])
-            m=float(a)
+            # Fusion's default units are cm, since you're using mm you'll have to multiply the value per 20
+            m=inputs2.itemById('Module').value*10
+            # a=str(q[0:len(q)-3])
+            # m=float(a)
+            # ui.messageBox(str(m) + " " +str(juan))
             ap=inputs2.itemById('FloatSpinner1').value
-            hb=hidebodies()
-            planetgearsdr(m,z,ap,aaok,anchoeng)
-            showhiddenbodies(hb)
-            fichatecnica(aaok,False,False,False,False,False,q,ap,z,0,0,0,0,0)
-            htl(7)
+            
+            design = adsk.fusion.Design.cast(app.activeProduct)
+            root = design.activeComponent
+            newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
+            hb=hidebodies(newComp)
+            planetgearsdr(m,z,ap,aaok,anchoeng,newComp)
+            showhiddenbodies(hb, newComp)
+            fichatecnica(aaok,False,False,False,False,False, m,ap,z,0,0,0,0,0,newComp)
+            htl(8)
             # nummerop=5
 
 
@@ -1828,24 +1897,26 @@ class cmdDef2OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         eventArgs=adsk.core.CommandEventArgs.cast(args)
         app=adsk.core.Application.get()
         ui=app.userInterface
-        design=app.activeProduct
-        rootComp=design.rootComponent
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        root = design.activeComponent
+        newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
         inputs2=eventArgs.command.commandInputs
 
         aaok=inputs2.itemById('aok2').value
         z=inputs2.itemById('IntegerSpinner2').value
-        q=inputs2.itemById('DropDownCommandInput2').selectedItem.name
+        #q=inputs2.itemById('DropDownCommandInput2').selectedItem.name
         anchoeng=inputs2.itemById('ValueInput2').value
-        a=str(q[0:len(q) - 3])
-        m=float(a)
+        m=inputs2.itemById('Module').value*10
+        # a=str(q[0:len(q) - 3])
+        # m=float(a)
         ap=inputs2.itemById('FloatSpinner2').value
         espesorc=inputs2.itemById('ValueInput22').value*10
-        hb=hidebodies()
-        coronastd(aaok,z,m,ap,anchoeng,espesorc)
-        showhiddenbodies(hb)
-        fichatecnica(aaok,True,False,False,False,False,q,ap,z,0,espesorc,0,0,0)
+        hb=hidebodies(newComp)
+        coronastd(aaok,z,m,ap,anchoeng,espesorc,newComp)
+        showhiddenbodies(hb,newComp)
+        fichatecnica(aaok,True,False,False,False,False,m,ap,z,0,espesorc,0,0,0,newComp)
         #numerop=5
-        htl(6)
+        htl(7)
 
 #Botón de ejecución para las coronas estándar DR
 
@@ -1856,27 +1927,30 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         eventArgs=adsk.core.CommandEventArgs.cast(args)
         app=adsk.core.Application.get()
         ui=app.userInterface
-        design=app.activeProduct
-        rootComp=design.rootComponent
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        root = design.activeComponent
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
         inputs2=eventArgs.command.commandInputs
         try:
             aaok=inputs2.itemById('aok3').value
             z=inputs2.itemById('IntegerSpinner3').value
-            q=inputs2.itemById('DropDownCommandInput3').selectedItem.name
+            #q=inputs2.itemById('DropDownCommandInput3').selectedItem.name
             anchoeng=inputs2.itemById('ValueInput3').value
-            a=str(q[0:len(q) - 3])
-            m=float(a)
+            m=inputs2.itemById('Module').value*10
+            # a=str(q[0:len(q) - 3])
+            # m=float(a)
             ap=inputs2.itemById('FloatSpinner3').value
             espesorc=inputs2.itemById('ValueInput32').value*10
-            hb=hidebodies()
-            coronasnostd(aaok,z,m,anchoeng,ap,espesorc)
-            showhiddenbodies(hb)
+            hb=hidebodies(newComp)
+            coronasnostd(aaok,z,m,anchoeng,ap,espesorc, newComp, occ)
+            showhiddenbodies(hb,newComp)
             #numerop=7
             if (m*z/2+m + espesorc) < (m*z/2-1.25*m + m*z/2+m):
-                fichatecnica(aaok, True, False, False, False, False, q, ap, z, 0, espesorc, 0, 0, 0)
+                fichatecnica(aaok, True, False, False, False, False, m, ap, z, 0, espesorc, 0, 0, 0,newComp)
                 htl(11)
             else:
-                fichatecnica(aaok, True, False, False, False, False, q, ap, z, 0, espesorc, 0, 0, 0)
+                fichatecnica(aaok, True, False, False, False, False, m, ap, z, 0, espesorc, 0, 0, 0,newComp)
                 htl(9)
         except:
             if ui:
@@ -1887,36 +1961,46 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
     def __init__(self):
         super().__init__()
     def notify(self,args):
-        eventArgs=adsk.core.CommandEventArgs.cast(args)
-        app=adsk.core.Application.get()
-        ui=app.userInterface
-        design=app.activeProduct
-        rootComp=design.rootComponent
-        inputs2=eventArgs.command.commandInputs
+        try:
+            eventArgs=adsk.core.CommandEventArgs.cast(args)
+            app=adsk.core.Application.get()
+            ui=app.userInterface
+            design=app.activeProduct
+            rootComp=design.rootComponent
+            inputs2=eventArgs.command.commandInputs
 
-        aaok=inputs2.itemById('aok4').value
-        vul=inputs2.itemById('BoolValue4').value
-        vul2=inputs2.itemById('BoolValue42').value
-        mult1=1
-        if vul2==True:
-            mult1=2
-        z=inputs2.itemById('IntegerSpinner4').value
-        q=inputs2.itemById('DropDownCommandInput4').selectedItem.name
-        anchoeng=inputs2.itemById('ValueInput4').value/mult1
-        a=str(q[0:len(q) - 3])
-        m=float(a)
-        ap=inputs2.itemById('FloatSpinner4').value
-        ah=inputs2.itemById('FloatSpinner42').value
-        hb=hidebodies()
-        helicalgs(aaok,vul,vul2,z,anchoeng,m,ap,ah)
-        showhiddenbodies(hb)
-        #numerop hsimple=5
-        if vul2==True:
-            fichatecnica(aaok,False,True,False,False,False,m,ap,z,ah,0,0,0,0)
-            htl(10)
-        else:
-            fichatecnica(aaok, False, True, False, False, False, m, ap, z, ah, 0, 0, 0, 0)
-            htl(7)
+            aaok=inputs2.itemById('aok4').value
+            vul=inputs2.itemById('BoolValue4').value
+            vul2=inputs2.itemById('BoolValue42').value
+            mult1=1
+            if vul2==True:
+                mult1=2
+            z=inputs2.itemById('IntegerSpinner4').value
+            # q=inputs2.itemById('DropDownCommandInput4').selectedItem.name
+            anchoeng=inputs2.itemById('ValueInput4').value/mult1
+            # a=str(q[0:len(q) - 3])
+            # m=float(a)
+            m=inputs2.itemById('Module').value*10
+            ap=inputs2.itemById('FloatSpinner4').value
+            ah=inputs2.itemById('FloatSpinner42').value
+
+            design = adsk.fusion.Design.cast(app.activeProduct)
+            root = design.activeComponent
+            newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
+
+            hb=hidebodies(newComp)
+            helicalgs(aaok,vul,vul2,z,anchoeng,m,ap,ah,newComp)
+            showhiddenbodies(hb,newComp)
+            #numerop hsimple=5
+            if vul2==True:
+                fichatecnica(aaok,False,True,False,False,False, m,ap,z,ah,0,0,0,0,newComp)
+                htl(11)
+            else:
+                fichatecnica(aaok, False, True, False, False, False, m, ap, z, ah, 0, 0, 0, 0,newComp)
+                htl(8)
+        except:
+            if ui:
+                ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
         #numerop doble=8
 
 #Ejecución para la creación de un engrane helicoidal
@@ -1929,8 +2013,10 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         app=adsk.core.Application.get()
         ui=app.userInterface
         inputs2=eventArgs.command.commandInputs
-        design=app.activeProduct
-        rootComp=design.rootComponent
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        root = design.activeComponent
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
 
         aaok=inputs2.itemById('aok5').value
         vul=inputs2.itemById('BoolValue5').value
@@ -1939,16 +2025,17 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         if vul2==True:
             mult1 =2
         z=inputs2.itemById('IntegerSpinner5').value
-        q=inputs2.itemById('DropDownCommandInput5').selectedItem.name
+        # q=inputs2.itemById('DropDownCommandInput5').selectedItem.name
         anchoeng=inputs2.itemById('ValueInput5').value / mult1
-        a=str(q[0:len(q)-3])
-        m=float(a)
+        m=inputs2.itemById('Module').value*10
+        # a=str(q[0:len(q)-3])
+        # m=float(a)
         ap=inputs2.itemById('FloatSpinner5').value
         espesorc=inputs2.itemById('ValueInput52').value*10
         ah=inputs2.itemById('FloatSpinner52').value
-        hb=hidebodies()
+        hb=hidebodies(newComp)
         try:
-            coronashelnostdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah)
+            coronashelnostdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp, occ)
             #numeropsimple= 8
             #numerop doble=11
             if (m*z/2+m + espesorc) < (m*z/2-1.25*m + m*z/2+m):
@@ -1956,15 +2043,15 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             else:
                 num=0
             if vul2 == True:
-                fichatecnica(aaok,True,True,False,False,False,m,ap,z,ah,espesorc,0,0,0)
+                fichatecnica(aaok,True,True,False,False,False,m,ap,z,ah,espesorc,0,0,0,newComp)
                 htl(12+num)
             else:
-                fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0)
+                fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0, newComp)
                 htl(9+num)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
-        showhiddenbodies(hb)
+        showhiddenbodies(hb, newComp)
 #Ejecución para la creación de una corona heicoidal no stdr
 
 
@@ -1976,37 +2063,44 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         app=adsk.core.Application.get()
         ui=app.userInterface
         inputs2=eventArgs.command.commandInputs
-        design = app.activeProduct
-
-        aaok=inputs2.itemById('aok6').value
-        vul=inputs2.itemById('BoolValue6').value
-        vul2=inputs2.itemById('BoolValue62').value
-        mult1=1
-        if vul2==True:
-            mult1=2
-        z=inputs2.itemById('IntegerSpinner6').value
-        q=inputs2.itemById('DropDownCommandInput6').selectedItem.name
-        anchoeng=inputs2.itemById('ValueInput6').value/mult1
-        a=str(q[0:len(q)-3])
-        m=float(a)
-        ap=inputs2.itemById('FloatSpinner6').value
-        espesorc=inputs2.itemById('ValueInput62').value*10
-        ah=inputs2.itemById('FloatSpinner62').value
-        hb=hidebodies()
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        root = design.activeComponent
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
         try:
-            coronashelstdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah)
-            #numerop simple=5
-            #numerop doble=8
-            if vul2 == True:
-                fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0)
-                htl(9)
-            else:
-                fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0)
-                htl(6)
+            aaok=inputs2.itemById('aok6').value
+            vul=inputs2.itemById('BoolValue6').value
+            vul2=inputs2.itemById('BoolValue62').value
+            mult1=1
+            if vul2==True:
+                mult1=2
+            z=inputs2.itemById('IntegerSpinner6').value
+            # q=inputs2.itemById('DropDownCommandInput6').selectedItem.name
+            anchoeng=inputs2.itemById('ValueInput6').value/mult1
+            m=inputs2.itemById('Module').value*10
+            # a=str(q[0:len(q)-3])
+            # m=float(a)
+            ap=inputs2.itemById('FloatSpinner6').value
+            espesorc=inputs2.itemById('ValueInput62').value*10
+            ah=inputs2.itemById('FloatSpinner62').value
+            hb=hidebodies(newComp)
+            try:
+                coronashelstdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp)
+                #numerop simple=5
+                #numerop doble=8
+                if vul2 == True:
+                    fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0, newComp)
+                    htl(10)
+                else:
+                    fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0, newComp)
+                    htl(7)
+            except:
+                if ui:
+                    ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+            showhiddenbodies(hb, newComp)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
-        showhiddenbodies(hb)
 
 #Ejecución para la creación de una corona Helicoidal stdr
 
@@ -2019,13 +2113,19 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         ui=app.userInterface
         design = app.activeProduct
         rootComp = design.rootComponent
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        root = design.activeComponent
+        newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
+        rootComp = newComp
+        
         inputs2 = eventArgs.command.commandInputs
 #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
         z = inputs2.itemById('IntegerSpinner7').value
-        q = inputs2.itemById('DropDownCommandInput7').selectedItem.name
+        #q = inputs2.itemById('DropDownCommandInput7').selectedItem.name
         anchoeng = inputs2.itemById('ValueInput7').value
-        a = str(q[0:len(q) - 3])
-        m = float(a)
+        m=inputs2.itemById('Module').value*10
+        #a = str(q[0:len(q) - 3])
+        #m = float(a)
         ap = inputs2.itemById('FloatSpinner7').value
         ah = inputs2.itemById('FloatSpinner72').value
         altura = inputs2.itemById('ValueInput72').value
@@ -2034,10 +2134,10 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         pitch = (mt.pi * m / 10)
         try:
             cuentaprevios=rootComp.sketches.count
-            hb2 = hidebodies()
+            hb2 = hidebodies(newComp)
             quantity = adsk.core.ValueInput.createByReal(z + 2)
             paso = adsk.core.ValueInput.createByReal(mt.pi * m / 10)
-            crema = cremsketch(m, z, h, ap, T, altura, anchoeng, ah)
+            crema = cremsketch(m, z, h, ap, T, altura, anchoeng, ah,newComp)
             if ah==0:
                 esque = rootComp.sketches.item(rootComp.sketches.count - 2)
             else:
@@ -2047,17 +2147,17 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                     esque = rootComp.sketches.item(rootComp.sketches.count - 3)
 
             profe = esque.profiles.item(0)
-            diente = simplesweep(profe, crema[1])
-            cremspatt(diente, crema[3], z + crema[4], pitch)
+            diente = simplesweep(profe, crema[1], newComp)
+            cremspatt(diente, crema[3], z + crema[4], pitch, newComp)
             if crema[4] > 0:
-                cremspatt(diente, crema[5], crema[4] + 1, pitch)
-            extruir(crema[2], anchoeng, 'Join')
+                cremspatt(diente, crema[5], crema[4] + 1, pitch, newComp)
+            extruir(crema[2], anchoeng, newComp, 'Join')
             if crema[4] > 0:
                 esque = rootComp.sketches.item(rootComp.sketches.count - 1)
                 profe1=esque.profiles.item(0)
                 profe2=esque.profiles.item(1)
-                extruir(profe1, anchoeng, 'Cut')
-                extruir(profe2, anchoeng, 'Cut')
+                extruir(profe1, anchoeng, newComp, 'Cut')
+                extruir(profe2, anchoeng, newComp, 'Cut')
             # roto la cremallera
             conta = rootComp.bRepBodies.count
             vec = adsk.core.Vector3D.create(1, 0, 0)
@@ -2073,12 +2173,12 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             else:
                 eshelicoidal = False
             if crema[4]>0:
-                fichatecnica(True,False,eshelicoidal,False,False,False,q,ap,z,ah,0,0,0,0)
-                htl(11)
+                fichatecnica(True,False,eshelicoidal,False,False,False,m,ap,z,ah,0,0,0,0,newComp)
+                htl(12)
             else:
-                fichatecnica(True, False, eshelicoidal, False, False, False, q, ap, z, ah, 0, 0, 0, 0)
-                htl(7)
-            showhiddenbodies(hb2)
+                fichatecnica(True, False, eshelicoidal, False, False, False, m, ap, z, ah, 0, 0, 0, 0,newComp)
+                htl(8)
+            showhiddenbodies(hb2,newComp)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2088,24 +2188,30 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
     def __init__(self):
         super().__init__()
     def notify(self,args):
-        hb=hidebodies()
+        app = adsk.core.Application.get()
+        ui = app.userInterface
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        root = design.activeComponent
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
+        hb=hidebodies(newComp)
         try:
-            app = adsk.core.Application.get()
-            ui = app.userInterface
+            
             design = app.activeProduct
-            rootComp = design.rootComponent
+            rootComp = newComp
             eventArgs=adsk.core.CommandEventArgs.cast(args)
             app=adsk.core.Application.get()
             ui=app.userInterface
-            design = app.activeProduct
+            #design = app.activeProduct
             inputs2=eventArgs.command.commandInputs
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('aok8').value
             z=inputs2.itemById('IntegerSpinner8').value
             z2=inputs2.itemById('IntegerSpinner82').value
-            q=inputs2.itemById('DropDownCommandInput8').selectedItem.name
-            a=str(q[0:len(q)-3])
-            m=float(a)
+            m=inputs2.itemById('Module').value*10
+            # q=inputs2.itemById('DropDownCommandInput8').selectedItem.name
+            # a=str(q[0:len(q)-3])
+            # m=float(a)
             ap=inputs2.itemById('FloatSpinner8').value
             list3=parameters(m,z,ap,0,1,False,0,aaok)
             rf=list3[0]
@@ -2119,16 +2225,16 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             rp=m*z/2
             rp2=m*z2/2
             aconico=mt.atan(z/z2)
-            s=sketchcon(x,y,x2,y2,z,z2,rp,rp2,rf,ra,Ttda,m,aok)
+            s=sketchcon(x,y,x2,y2,z,z2,rp,rp2,rf,ra,Ttda,m,aok, newComp)
             esq = rootComp.sketches.item(rootComp.sketches.count - 3)
             prof = esq.profiles.item(0)
-            diente=sweep(prof,s[1],s[2],s[3],s[4])
-            rev(s[5],s[6],'NewBody')
-            cpattern(s[6],True,ra,rf,z,diente,True,1,'Join')
-            combine(z)
-            rev(s[7], s[6], 'Cut')
-            rev(s[8],s[6],'Cut')
-            rotcon(rf,aconico)
+            diente=sweep(prof,s[1],s[2],s[3],s[4], newComp)
+            rev(s[5],s[6], newComp, 'NewBody')
+            cpattern(s[6],True,ra,rf,z,diente,True,1, newComp, 'Join')
+            combine(z, newComp)
+            rev(s[7], s[6], newComp, 'Cut')
+            rev(s[8], s[6], newComp,'Cut')
+            rotcon(rf,aconico, occ)
 
             list4=parameters(m,z2,ap,0,1,False,0,aaok)
             rf4=list4[0]
@@ -2141,26 +2247,29 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             ra4=list4[7]
             rp4=m*z/2
 
-            movebody((ra4+5+ra)/10,0,0)
+            moveocc((ra4+5+ra)/10,0,0, occ)
+
+            occ2 = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+            newComp2 = occ2.component
 
             rp24=m*z2/2
             aconico4=mt.atan(z2/z)
-            s4=sketchcon(x4,y4,x24,y24,z2,z,rp24,rp4,rf4,ra4,Ttda4,m,aok4)
-            esq = rootComp.sketches.item(rootComp.sketches.count - 3)
+            s4=sketchcon(x4,y4,x24,y24,z2,z,rp24,rp4,rf4,ra4,Ttda4,m,aok4, newComp2)
+            esq = newComp2.sketches.item(newComp2.sketches.count - 3)
             prof = esq.profiles.item(0)
-            diente=sweep(prof,s4[1],s4[2],s4[3],s4[4])
-            rev(s4[5],s4[6],'NewBody')
-            cpattern(s4[6],True,ra4,rf4,z2,diente,True,1,'Join')
-            combine(z2)
-            rev(s4[7],s4[6],'Cut')
-            rev(s4[8],s4[6],'Cut')
-            rotcon(rf4,aconico4)
-            fichatecnica(aaok,False,False,True,False,False,q,ap,z,0,0,z2,0,0)
-            htl(22)
+            diente=sweep(prof,s4[1],s4[2],s4[3],s4[4], newComp2)
+            rev(s4[5],s4[6], newComp2,'NewBody')
+            cpattern(s4[6],True,ra4,rf4,z2,diente,True,1, newComp2,'Join')
+            combine(z2, newComp2)
+            rev(s4[7],s4[6], newComp2,'Cut')
+            rev(s4[8],s4[6], newComp2, 'Cut')
+            rotcon(rf4,aconico4, occ2)
+            fichatecnica(aaok,False,False,True,False,False,m,ap,z,0,0,z2,0,0, newComp2)
+            htl(21)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
-        showhiddenbodies(hb)
+        showhiddenbodies(hb, newComp)
 #Ejecución de creación de cónicos
 
 
@@ -2172,21 +2281,24 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             eventArgs=adsk.core.CommandEventArgs.cast(args)
             app=adsk.core.Application.get()
             ui=app.userInterface
-            design = app.activeProduct
-            rootComp = design.rootComponent
+            design = adsk.fusion.Design.cast(app.activeProduct)
+            root = design.activeComponent
+            occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+            newComp = occ.component
             inputs2=eventArgs.command.commandInputs
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('aok9').value
             z=inputs2.itemById('IntegerSpinner9').value
-            q=inputs2.itemById('DropDownCommandInput9').selectedItem.name
+            # q=inputs2.itemById('DropDownCommandInput9').selectedItem.name
             anchoeng=inputs2.itemById('ValueInput9').value
-            a=str(q[0:len(q)-3])
-            m=float(a)
+            m=inputs2.itemById('Module').value*10
+            # a=str(q[0:len(q)-3])
+            # m=float(a)
             ap=inputs2.itemById('FloatSpinner9').value
             X=inputs2.itemById('FloatSpinner92').value
             if abs(X)==0:
                 X=0
-            hb=hidebodies()
+            hb=hidebodies(newComp)
             list3=parameters(m,z,ap,0,anchoeng,False,X,aaok)
             rf=list3[0]
             x=list3[1]
@@ -2200,28 +2312,29 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             rvf=list3[29]
             rb=list3[27]
             if abs(X)==0:
-                planetgearsdr(m,z,ap,aaok,anchoeng)
-                fichatecnica(aaok,False,False,False,False,False,q,ap,z,0,0,0,0,0)
+                planetgearsdr(m,z,ap,aaok,anchoeng, newComp)
+                fichatecnica(aaok,False,False,False,False,False,m,ap,z,0,0,0,0,0, newComp)
                 #numerop = spurgi
-                htl(7)
+                htl(8)
             else:
-                prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X)
+                prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X, newComp)
                 op='Cut'
-                extruir(prof[0],anchoeng,'NewBody')
-                diente=extruir(prof[1],anchoeng,op)
-                cpattern(1,False,ra,rf,z,diente,True,anchoeng,'Cut')
-                sk=rootComp.sketches.add(rootComp.xYConstructionPlane)
+                extruir(prof[0],anchoeng, newComp, 'NewBody')
+                diente=extruir(prof[1],anchoeng,newComp, op)
+                cpattern(1,False,ra,rf,z,diente,True,anchoeng, newComp, 'Cut')
+                sk=newComp.sketches.add(newComp.xYConstructionPlane)
                 origen=adsk.core.Point3D.create(0,0,0)
                 sk.sketchCurves.sketchCircles.addByCenterRadius(origen,(m*z+2*X*m-2.5*m)/20)
                 porf=sk.profiles.item(0)
-                extruir(porf,anchoeng,'Join')
+                extruir(porf,anchoeng, newComp, 'Join')
                 #numerop=7
-                fichatecnica(aaok,False,False,False,False,True,q,ap,z,0,0,0,0,X)
-                htl(8)
+                fichatecnica(aaok,False,False,False,False,True,m,ap,z,0,0,0,0,X, newComp)
+                htl(9)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
-        showhiddenbodies(hb)
+        showhiddenbodies(hb, newComp)
+#Spur PS
 
 class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
     def __init__(self):
@@ -2230,8 +2343,10 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         eventArgs=adsk.core.CommandEventArgs.cast(args)
         app=adsk.core.Application.get()
         ui=app.userInterface
-        design=app.activeProduct
-        rootComp=design.rootComponent
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        root = design.activeComponent
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
         inputs2=eventArgs.command.commandInputs
 
         aaok=inputs2.itemById('aok10').value
@@ -2241,15 +2356,16 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         if vul2==True:
             mult1=2
         z=inputs2.itemById('IntegerSpinner10').value
-        q=inputs2.itemById('DropDownCommandInput10').selectedItem.name
+        # q=inputs2.itemById('DropDownCommandInput10').selectedItem.name
         anchoeng=inputs2.itemById('ValueInput10').value/mult1
-        a=str(q[0:len(q)-3])
-        m=float(a)
+        m=inputs2.itemById('Module').value*10
+        # a=str(q[0:len(q)-3])
+        # m=float(a)
         ap=inputs2.itemById('FloatSpinner10').value
         ah=inputs2.itemById('FloatSpinner102').value
         X=inputs2.itemById('FloatSpinner103').value
 
-        hb=hidebodies()
+        hb=hidebodies(newComp)
         list3=parameters(m, z, ap, ah,1.25*anchoeng,vul,X,aaok)
         rf=list3[0]
         x=list3[1]
@@ -2267,42 +2383,43 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         rvf=list3[29]
         rb=list3[27]
         if abs(X)==0:
-            helicalgs(aaok, vul, vul2, z, anchoeng, m, ap, ah)
+            helicalgs(aaok, vul, vul2, z, anchoeng, m, ap, ah, newComp)
             if vul2:
-                fichatecnica(aaok,False,True,False,False,False,q,ap,z,ah,0,0,0,0)
-                htl(10)
+                fichatecnica(aaok,False,True,False,False,False,m,ap,z,ah,0,0,0,0, newComp)
+                htl(11)
             else:
-                fichatecnica(aaok, False, True, False, False, False, q, ap, z, ah, 0, 0, 0, 0)
-                htl(7)
+                fichatecnica(aaok, False, True, False, False, False, m, ap, z, ah, 0, 0, 0, 0, newComp)
+                htl(8)
         else:
-            prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X)
+            prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X, newComp)
             op='Cut'
             esPS=True
-            extruir(prof[0],anchoeng,'NewBody')
+            extruir(prof[0],anchoeng, newComp, 'NewBody')
             try:
-                diente=helixext(esPS,rva,rvf,False,ah,prof[2],aok,xl,yl,zl,1.25*anchoeng,vul,op)
-                cpattern(1,False,ra,rf,z,diente[0],True,anchoeng,'Cut')
+                diente=helixext(esPS,rva,rvf,False,ah,prof[2],aok,xl,yl,zl,1.25*anchoeng,vul, newComp, op)
+                cpattern(1,False,ra,rf,z,diente[0],True,anchoeng, newComp, 'Cut')
                 if vul2==True:
-                    mirror(prof[2],anchoeng,False)
-                    sk = rootComp.sketches.add(rootComp.xYConstructionPlane)
+                    mirror(prof[2],anchoeng,False, newComp)
+                    sk = newComp.sketches.add(newComp.xYConstructionPlane)
                     origen = adsk.core.Point3D.create(0, 0, 0)
                     sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
                     porf = sk.profiles.item(0)
-                    extruir(porf,2*anchoeng, 'Join')
-                    fichatecnica(aaok, False, True, False, False, True, q, ap, z, ah, 0, 0, 0, X)
-                    htl(11)
+                    extruir(porf,2*anchoeng, newComp, 'Join')
+                    fichatecnica(aaok, False, True, False, False, True, m, ap, z, ah, 0, 0, 0, X, newComp)
+                    htl(12)
                 else:
-                    sk = rootComp.sketches.add(rootComp.xYConstructionPlane)
+                    sk = newComp.sketches.add(newComp.xYConstructionPlane)
                     origen = adsk.core.Point3D.create(0, 0, 0)
                     sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
                     porf = sk.profiles.item(0)
-                    extruir(porf, anchoeng, 'Join')
-                    fichatecnica(aaok, False, True, False, False, True, q, ap, z, ah, 0, 0, 0, X)
-                    htl(8)
+                    extruir(porf, anchoeng, newComp, 'Join')
+                    fichatecnica(aaok, False, True, False, False, True, m, ap, z, ah, 0, 0, 0, X, newComp)
+                    htl(9)
             except:
                 if ui:
                     ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
-        showhiddenbodies(hb)
+        showhiddenbodies(hb, newComp)
+# helical PS
 
 class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
     def __init__(self):
@@ -2311,8 +2428,11 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         eventArgs=adsk.core.CommandEventArgs.cast(args)
         app=adsk.core.Application.get()
         ui=app.userInterface
-        design=app.activeProduct
-        rootComp=design.rootComponent
+        design = adsk.fusion.Design.cast(app.activeProduct)
+        root = design.activeComponent
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
+        #aqui me quede
         inputs2=eventArgs.command.commandInputs
         try:
             aaok=inputs2.itemById('aok11').value
@@ -2323,57 +2443,62 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 mult1=2
             z=inputs2.itemById('IntegerSpinner11').value
             largotornillo=inputs2.itemById('IntegerSpinner112').value*10
-            q=inputs2.itemById('DropDownCommandInput11').selectedItem.name
+            # q=inputs2.itemById('DropDownCommandInput11').selectedItem.name
             anchoeng=inputs2.itemById('ValueInput11').value/mult1
-            a=str(q[0:len(q) - 3])
-            m=float(a)
+            m=inputs2.itemById('Module').value*10
+            # a=str(q[0:len(q) - 3])
+            # m=float(a)
             ap=inputs2.itemById('FloatSpinner11').value
             radio=inputs2.itemById('FloatSpinner112').value
             tipo=inputs2.itemById('Brow11').selectedItem.name
 
             if tipo=='Helical':
-                hb = hidebodies()
-                worm=wormhelix(m,z,ap,radio*10,vul,largotornillo,vul)
-                linearpattern(worm[1],worm[0],worm[6],worm[0])
-                linearpattern(worm[5], worm[0],worm[6], worm[0])
-                dick=extruir(worm[7],(mt.pi*m/1),'Cut')
-                extruir(worm[8],(mt.pi*m/1),'Cut')
-                extruir(worm[7],(.001),'Join')
-                showhiddenbodies(hb)
-                hb2 = hidebodies()
-                movebody(-worm[4]/20,((10*radio+4.5*m+(m*z/2+m))/10),(10*radio)/10)
-                heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok)
-                showhiddenbodies(hb2)
-                fichatecnica(aaok,False,True,False,True,False,q,ap,z,worm[3],0,0,radio,0)
-                htl(22)
+                hb = hidebodies(newComp)
+                worm=wormhelix(m,z,ap,radio*10,vul,largotornillo,vul, newComp)
+                linearpattern(worm[1],worm[0],worm[6],worm[0], newComp)
+                linearpattern(worm[5], worm[0],worm[6], worm[0], newComp)
+                combine(newComp.bRepBodies.count-1, newComp)
+                extruir(worm[7],(mt.pi*m/1), newComp,'Cut')
+                extruir(worm[8],(mt.pi*m/1), newComp, 'Cut')
+                extruir(worm[7],(.001), newComp, 'Join')
+                showhiddenbodies(hb, newComp)
+                hb2 = hidebodies(newComp)
+                moveLastComponentBody(-worm[4]/20,((10*radio+4.5*m+(m*z/2+m))/10),(10*radio)/10, newComp)
+                heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp)
+                showhiddenbodies(hb2, newComp)
+                fichatecnica(aaok,False,True,False,True,False,m,ap,z,worm[3],0,0,radio,0, newComp)
+                htl(24)
 
             elif tipo=='Hobbed Straight':
-                hb = hidebodies()
-                listan = wormhelix2(m, z, ap, radio * 10, aaok, largotornillo, vul,anchoeng)
+                hb = hidebodies(newComp)
+
+                worm=wormhelix(m, z, ap, radio * 10, vul, largotornillo, vul, newComp)
+                linearpattern(worm[1], worm[0], worm[6], worm[0], newComp)
+                linearpattern(worm[5], worm[0],worm[6], worm[0], newComp)
+                combine(newComp.bRepBodies.count-1, newComp)
+                extruir(worm[7], (mt.pi * m / 1), newComp, 'Cut')
+                extruir(worm[8], (mt.pi * m / 1), newComp, 'Cut')
+                extruir(worm[7], (.001), newComp, 'Join')
+                moveLastComponentBody(-worm[4] / 20, ((10 * radio + 4.5 * m + (m * z / 2 + m)) / 10), (10 * radio) / 10, newComp)
+                showhiddenbodies(hb, newComp)
+
+                hb2=hidebodies(newComp)
+                listan = wormhelix2(m, z, ap, radio * 10, aaok, largotornillo, vul,anchoeng, newComp)
                 feature =listan[0]
                 feature2=listan[4]
                 linecenter=listan[1]
                 posx=listan[2]
                 posy=listan[3]
-                indcpattern(feature,linecenter,z)
-                indcpattern(feature2, linecenter, z)
-                movebody(-posx,posy/10,anchoeng/2)
-                showhiddenbodies(hb)
-                hb2=hidebodies()
-                worm=wormhelix(m, z, ap, radio * 10, vul, largotornillo, vul)
-                linearpattern(worm[1], worm[0], worm[6], worm[0])
-                linearpattern(worm[5], worm[0],worm[6], worm[0])
-                dick=extruir(worm[7], (mt.pi * m / 1), 'Cut')
-                extruir(worm[8], (mt.pi * m / 1), 'Cut')
-                extruir(worm[7], (.001), 'Join')
-                movebody(-worm[4] / 20, ((10 * radio + 4.5 * m + (m * z / 2 + m)) / 10), (10 * radio) / 10)
-                showhiddenbodies(hb2)
-                fichatecnica(aaok, False, True, False, True, False, q, ap, z, worm[3], 0, 0, radio, 0)
-                htl(27)
+                indcpattern(feature,linecenter,z, newComp)
+                indcpattern(feature2, linecenter, z, newComp)
+                moveLastComponentBody(-posx,posy/10,anchoeng/2, newComp)
+                showhiddenbodies(hb2, newComp)
+                fichatecnica(aaok, False, True, False, True, False, m, ap, z, worm[3], 0, 0, radio, 0, newComp)
+                htl(29)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
-
+# Worm gear
 
 tbPanel = None
 def run(context):
