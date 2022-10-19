@@ -2,6 +2,7 @@
 #Gear Generator for basic high quality gears
 import adsk.core, adsk.fusion, adsk.cam, traceback
 import math as mt
+
 defaultfc=True
 handlers=[]
 list=['0.4 mm','0.5 mm','0.6 mm','0.7 mm','0.8 mm','0.9 mm','1 mm','1.25 mm','1.5 mm','1.75 mm','2 mm','2.25 mm','2.5 mm','2.75 mm','3 mm','3.25 mm','3.5 mm','3.75 mm','4 mm','4.25 mm','4.5 mm','4.75 mm','5 mm','5.25 mm','5.5 mm','5.75 mm','6 mm','6.5 mm','7 mm','8 mm','9 mm','10 mm','11 mm','12 mm','13 mm','14 mm','15 mm','16 mm','18 mm','20 mm','22 mm','24 mm','27 mm','30 mm','33 mm','36 mm','39 mm','42 mm','45 mm','50 mm','60 mm','65 mm','70 mm','75 mm']
@@ -1527,6 +1528,17 @@ def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,
     sketchTextInput.textStyle = adsk.fusion.TextStyles.TextStyleBold
     sketchText = sketchTexts.add(sketchTextInput)
     sketch.isVisible=False
+
+command_cache = {}
+def get(obj, key, default=None):
+    if type(obj) in command_cache and key in command_cache[type(obj)]:
+        return command_cache[type(obj)][key]
+    return default 
+def set(obj, key, value):
+    global command_cache
+    if type(obj) not in command_cache:
+        command_cache[type(obj)] = {}
+    command_cache[type(obj)][key] = value
 
 class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self):
