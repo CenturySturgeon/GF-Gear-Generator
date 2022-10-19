@@ -1552,16 +1552,16 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
 
         # Fusion's default units are cm, since your units are mm you'll need to divide that value with 10
         # a ValueInput = 1 will show as 10mm
-        aaok=inputs.addBoolValueInput('aok1','Fast Compute',True,'', get(self, aok1, defaultfc))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput1','Module [mm]', get(self, DropDownCommandInput1, 1))
+        aaok=inputs.addBoolValueInput('aok1','Fast Compute',True,'', get(self, 'aok1', defaultfc))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput1','Module [mm]', get(self, 'DropDownCommandInput1', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner1', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner1, 17))
-        inputs.addValueInput('ValueInput1', 'Gear height [mm]', 'mm', get(self, ValueInput1, ValueInput1))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner1', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner1, 14.5))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner1', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner1', 17))
+        inputs.addValueInput('ValueInput1', 'Gear height [mm]', 'mm', get(self, 'ValueInput1', ValueInput1))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner1', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner1', 14.5))
         # con esto vinculo al boton OK
         onExecute=cmdDefOKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
@@ -1579,17 +1579,17 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput2=adsk.core.ValueInput.createByReal(1)
         ValueInput22=adsk.core.ValueInput.createByReal(.5)
 
-        aaok2=inputs.addBoolValueInput('aok2', 'Fast Compute', True, '', get(self, aok2, defaultfc))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput2','Module [mm]', get(self, DropDownCommandInput2, 1))
+        aaok2=inputs.addBoolValueInput('aok2', 'Fast Compute', True, '', get(self, 'aok2', defaultfc))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput2','Module [mm]', get(self, 'DropDownCommandInput2', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner2', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner2, 17))
-        inputs.addValueInput('ValueInput2', 'Gear height [mm]', 'mm', get(self, ValueInput2, ValueInput2))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner2', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner2, 14.5))
-        inputs.addValueInput('ValueInput22','Radial thickness [mm]','mm', get(self, ValueInput22, ValueInput22))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner2', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner2', 17))
+        inputs.addValueInput('ValueInput2', 'Gear height [mm]', 'mm', get(self, 'ValueInput2', ValueInput2))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner2', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner2', 14.5))
+        inputs.addValueInput('ValueInput22','Radial thickness [mm]','mm', get(self, 'ValueInput22', ValueInput22))
         # con esto vinculo al boton OK
         onExecute=cmdDef2OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
@@ -1607,17 +1607,17 @@ class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput3=adsk.core.ValueInput.createByReal(1)
         ValueInput32=adsk.core.ValueInput.createByReal(0.5)
 
-        aaok3=inputs.addBoolValueInput('aok3', 'Fast Compute', True, '', get(self, aok3, defaultfc))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput3','Module [mm]', get(self, DropDownCommandInput3, 1))
+        aaok3=inputs.addBoolValueInput('aok3', 'Fast Compute', True, '', get(self, 'aok3', defaultfc))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput3','Module [mm]', get(self, 'DropDownCommandInput3', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner3', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner3, 17))
-        inputs.addValueInput('ValueInput3', 'Gear height [mm]', 'mm', get(self, ValueInput3, ValueInput3))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner3', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner3, 14.5))
-        inputs.addValueInput('ValueInput32','Radial thickness [mm]','mm', get(self, ValueInput32, ValueInput32))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner3', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner3', 17))
+        inputs.addValueInput('ValueInput3', 'Gear height [mm]', 'mm', get(self, 'ValueInput3', ValueInput3))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner3', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner3', 14.5))
+        inputs.addValueInput('ValueInput32','Radial thickness [mm]','mm', get(self, 'ValueInput32', ValueInput32))
 
         # con esto vinculo al boton OK
         onExecute=cmdDef3OKButtonPressedEventHandler()
@@ -1635,19 +1635,19 @@ class cmdDef4PressedEventHandler(adsk.core.CommandCreatedEventHandler):
 
         ValueInput4=adsk.core.ValueInput.createByReal(1)
 
-        aaok4=inputs.addBoolValueInput('aok4', 'Fast Compute', True, '', get(self, aok4, defaultfc))
-        inputs.addBoolValueInput('BoolValue4', 'Clock Wise', True, '', get(self, BoolValue4, False))
-        inputs.addBoolValueInput('BoolValue42','Double Helical',True,'', get(self, BoolValue42, False))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput4','Module [mm]', get(self, DropDownCommandInput4, 1))
+        aaok4=inputs.addBoolValueInput('aok4', 'Fast Compute', True, '', get(self, 'aok4', defaultfc))
+        inputs.addBoolValueInput('BoolValue4', 'Clock Wise', True, '', get(self, 'BoolValue4', False))
+        inputs.addBoolValueInput('BoolValue42','Double Helical',True,'', get(self, 'BoolValue42', False))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput4','Module [mm]', get(self, 'DropDownCommandInput4', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner4', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner4, 17))
-        inputs.addValueInput('ValueInput4', 'Gear height [mm]', 'mm', get(self, ValueInput4, ValueInput4))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner4', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner4, 14.5))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner42','Helix angle [°]','deg',0,45,0.5, get(self, FloatSpinner42, 15))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner4', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner4', 17))
+        inputs.addValueInput('ValueInput4', 'Gear height [mm]', 'mm', get(self, 'ValueInput4', ValueInput4))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner4', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner4', 14.5))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner42','Helix angle [°]','deg',0,45,0.5, get(self, 'FloatSpinner42', 15))
         # con esto vinculo al boton OK
 
         onExecute=cmdDef4OKButtonPressedEventHandler()
@@ -1666,20 +1666,20 @@ class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput5=adsk.core.ValueInput.createByReal(1)
         ValueInput52=adsk.core.ValueInput.createByReal(.5)
 
-        aaok5=inputs.addBoolValueInput('aok5', 'Fast Compute', True, '', get(self, aok5, defaultfc))
-        inputs.addBoolValueInput('BoolValue5', 'Clock Wise', True, '', get(self, BoolValue5, False))
-        inputs.addBoolValueInput('BoolValue52','Double Helical',True,'', get(self, BoolValue52, False))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput5','Module [mm]', get(self, DropDownCommandInput5, 1))
+        aaok5=inputs.addBoolValueInput('aok5', 'Fast Compute', True, '', get(self, 'aok5', defaultfc))
+        inputs.addBoolValueInput('BoolValue5', 'Clock Wise', True, '', get(self, 'BoolValue5', False))
+        inputs.addBoolValueInput('BoolValue52','Double Helical',True,'', get(self, 'BoolValue52', False))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput5','Module [mm]', get(self, 'DropDownCommandInput5', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner5', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner5, 17))
-        inputs.addValueInput('ValueInput5', 'Gear height [mm]', 'mm', get(self, ValueInput5, ValueInput5))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner5', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner5, 14.5))
-        inputs.addValueInput('ValueInput52','Radial thickness [mm]','mm', get(self, ValueInput52, ValueInput52))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner52', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, FloatSpinner52, 15))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner5', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner5', 17))
+        inputs.addValueInput('ValueInput5', 'Gear height [mm]', 'mm', get(self, 'ValueInput5', ValueInput5))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner5', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner5', 14.5))
+        inputs.addValueInput('ValueInput52','Radial thickness [mm]','mm', get(self, 'ValueInput52', ValueInput52))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner52', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'FloatSpinner52', 15))
 
         #con esto vinculo al boton OK
         onExecute=cmdDef5OKButtonPressedEventHandler()
@@ -1698,20 +1698,20 @@ class cmdDef6PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput6=adsk.core.ValueInput.createByReal(1)
         ValueInput62=adsk.core.ValueInput.createByReal(.5)
 
-        aaok6=inputs.addBoolValueInput('aok6', 'Fast Compute', True, '', get(self, aok6, defaultfc))
-        inputs.addBoolValueInput('BoolValue6', 'Clock Wise', True, '', get(self, BoolValue6, False))
-        inputs.addBoolValueInput('BoolValue62','Double Helical',True,'', get(self, BoolValue62, False))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput6','Module [mm]', get(self, DropDownCommandInput6, 1))
+        aaok6=inputs.addBoolValueInput('aok6', 'Fast Compute', True, '', get(self, 'aok6', defaultfc))
+        inputs.addBoolValueInput('BoolValue6', 'Clock Wise', True, '', get(self, 'BoolValue6', False))
+        inputs.addBoolValueInput('BoolValue62','Double Helical',True,'', get(self, 'BoolValue62', False))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput6','Module [mm]', get(self, 'DropDownCommandInput6', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner6', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner6, 17))
-        inputs.addValueInput('ValueInput6', 'Gear height [mm]', 'mm', get(self, ValueInput6, ValueInput6))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner6', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner6, 14.5))
-        inputs.addValueInput('ValueInput62','Radial thickness [mm]','mm', get(self, ValueInput62, ValueInput62))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner62', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, FloatSpinner62, 15))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner6', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner6', 17))
+        inputs.addValueInput('ValueInput6', 'Gear height [mm]', 'mm', get(self, 'ValueInput6', ValueInput6))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner6', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner6', 14.5))
+        inputs.addValueInput('ValueInput62','Radial thickness [mm]','mm', get(self, 'ValueInput62', ValueInput62))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner62', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'FloatSpinner62', 15))
 
         #con esto vinculo al boton OK
         onExecute=cmdDef6OKButtonPressedEventHandler()
@@ -1728,17 +1728,17 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inputs=cmd.commandInputs
         ValueInput7 = adsk.core.ValueInput.createByReal(1)
 
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u = inputs.addDropDownCommandInput('DropDownCommandInput7', 'Module [mm]', get(self, DropDownCommandInput7, 1))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u = inputs.addDropDownCommandInput('DropDownCommandInput7', 'Module [mm]', get(self, 'DropDownCommandInput7', 1))
         # qty = u.listItems
         # qty.add('0.3 mm', True, 'si')
         # for nn in range(0, len(list)):
         #     qty.add(list[nn], False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner7', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner7, 17))
-        inputs.addValueInput('ValueInput7', 'Rack thickness [mm]', 'mm', get(self, ValueInput7, ValueInput7))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner7', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner7, 14.5))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner72', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, FloatSpinner72, 0))
-        inputs.addValueInput('ValueInput72', 'Rack height [mm]', 'mm', get(self, ValueInput72, ValueInput7))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner7', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner7', 17))
+        inputs.addValueInput('ValueInput7', 'Rack thickness [mm]', 'mm', get(self, 'ValueInput7', ValueInput7))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner7', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner7', 14.5))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner72', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'FloatSpinner72', 0))
+        inputs.addValueInput('ValueInput72', 'Rack height [mm]', 'mm', get(self, 'ValueInput72', ValueInput7))
         # con esto vinculo al boton OK
         onExecute = cmdDef7OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
@@ -1754,16 +1754,16 @@ class cmdDef8PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inputs=cmd.commandInputs
         ValueInput8=adsk.core.ValueInput.createByReal(1)
 
-        aaok8=inputs.addBoolValueInput('aok8', 'Fast Compute', True, '', get(self, aok8, defaultfc))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput8','Module [mm]', get(self, DropDownCommandInput8, 1))
+        aaok8=inputs.addBoolValueInput('aok8', 'Fast Compute', True, '', get(self, 'aok8', defaultfc))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput8','Module [mm]', get(self, 'DropDownCommandInput8', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner8', 'Number of teeth for the wheel [ ]', 6, 250, 1, get(self, IntegerSpinner8, 17))
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner82', 'Number of teeth for the pinion [ ]', 6, 250, 1, get(self, IntegerSpinner82, 17))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner8', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner8, 14.5))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner8', 'Number of teeth for the wheel [ ]', 6, 250, 1, get(self, 'IntegerSpinner8', 17))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner82', 'Number of teeth for the pinion [ ]', 6, 250, 1, get(self, 'IntegerSpinner82', 17))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner8', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner8', 14.5))
         # con esto vinculo al boton OK
         onExecute=cmdDef8OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
@@ -1779,17 +1779,17 @@ class cmdDef9PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inputs=cmd.commandInputs
         ValueInput9=adsk.core.ValueInput.createByReal(1)
 
-        aaok9=inputs.addBoolValueInput('aok9','Fast Compute', True, '', get(self, aok9, defaultfc))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner92','Profile shifting coefficient "X" [ ]','',-1,1,.01, get(self, FloatSpinner92, 0))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput9','Module [mm]', get(self, DropDownCommandInput9, 1))
+        aaok9=inputs.addBoolValueInput('aok9','Fast Compute', True, '', get(self, 'aok9', defaultfc))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner92','Profile shifting coefficient "X" [ ]','',-1,1,.01, get(self, 'FloatSpinner92', 0))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput9','Module [mm]', get(self, 'DropDownCommandInput9', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner9', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner9, 17))
-        inputs.addValueInput('ValueInput9', 'Gear height [mm]', 'mm', get(self, ValueInput9, ValueInput9))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner9', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner9, 14.5))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner9', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner9', 17))
+        inputs.addValueInput('ValueInput9', 'Gear height [mm]', 'mm', get(self, 'ValueInput9', ValueInput9))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner9', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner9', 14.5))
         # con esto vinculo al boton OK
         onExecute=cmdDef9OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
@@ -1806,20 +1806,20 @@ class cmdDef10PressedEventHandler(adsk.core.CommandCreatedEventHandler):
 
         ValueInput10=adsk.core.ValueInput.createByReal(1)
 
-        aaok10=inputs.addBoolValueInput('aok10', 'Fast Compute', True, '', get(self, aok10, defaultfc))
-        inputs.addBoolValueInput('BoolValue10', 'Clock Wise', True, '', get(self, BoolValue10, False))
-        inputs.addBoolValueInput('BoolValue102','Double Helical',True,'', get(self, BoolValue102, False))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner103','Profile shifting coefficient "X" [ ]','',-1,1,.01, get(self, FloatSpinner103, 0))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput10','Module [mm]', get(self, DropDownCommandInput10, 1))
+        aaok10=inputs.addBoolValueInput('aok10', 'Fast Compute', True, '', get(self, 'aok10', defaultfc))
+        inputs.addBoolValueInput('BoolValue10', 'Clock Wise', True, '', get(self, 'BoolValue10', False))
+        inputs.addBoolValueInput('BoolValue102','Double Helical',True,'', get(self, 'BoolValue102', False))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner103','Profile shifting coefficient "X" [ ]','',-1,1,.01, get(self, 'FloatSpinner103', 0))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput10','Module [mm]', get(self, 'DropDownCommandInput10', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner10', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner10, 17))
-        inputs.addValueInput('ValueInput10', 'Gear height [mm]', 'mm', get(self, ValueInput10, ValueInput10))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner10', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner10, 14.5))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner102','Helix angle [°]','deg',0,45,0.5, get(self, FloatSpinner102, 15))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner10', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner10', 17))
+        inputs.addValueInput('ValueInput10', 'Gear height [mm]', 'mm', get(self, 'ValueInput10', ValueInput10))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner10', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner10', 14.5))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner102','Helix angle [°]','deg',0,45,0.5, get(self, 'FloatSpinner102', 15))
         # con esto vinculo al boton OK
 
         onExecute=cmdDef10OKButtonPressedEventHandler()
@@ -1839,24 +1839,24 @@ class cmdDef11PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput112= adsk.core.ValueInput.createByReal(1)
         ValueInput113 = adsk.core.ValueInput.createByReal(.5)
 
-        inputs.addBoolValueInput('aok11', 'Fast Compute', True, '', get(self, aok11, defaultfc))
-        brow11=inputs.addButtonRowCommandInput('Brow11','Worm Gear Type', get(self, Brow11, False))
+        inputs.addBoolValueInput('aok11', 'Fast Compute', True, '', get(self, 'aok11', defaultfc))
+        brow11=inputs.addButtonRowCommandInput('Brow11','Worm Gear Type', get(self, 'Brow11', False))
         brow11.listItems.add('Helical',True,'Resources/Helical')
         brow11.listItems.add('Hobbed Straight',False,'Resources/HobbedWorm')
 
         #usar clock wise como rosca izquierda o derecha
-        inputs.addBoolValueInput('BoolValue11', 'Left threaded', True, '', get(self, BoolValue11, False))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, Module, adsk.core.ValueInput.createByReal(.03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput11','Module [mm]', get(self, DropDownCommandInput11, 1))
+        inputs.addBoolValueInput('BoolValue11', 'Left threaded', True, '', get(self, 'BoolValue11', False))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', get(self, 'Module', adsk.core.ValueInput.createByReal(.03)))
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput11','Module [mm]', get(self, 'DropDownCommandInput11', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner11', 'Number of teeth [ ]', 6, 250, 1, get(self, IntegerSpinner11, 17))
-        inputs.addValueInput('IntegerSpinner112','Worm length [mm]','mm', get(self, IntegerSpinner112, ValueInput112))
-        inputs.addValueInput('ValueInput11', 'Worm gear height [mm]', 'mm', get(self, ValueInput11, ValueInput11))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner11', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, FloatSpinner11, 14.5))
-        inputs.addValueInput('FloatSpinner112','Worm drive radius [mm]','mm', get(self, FloatSpinner112, ValueInput113))
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner11', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner11', 17))
+        inputs.addValueInput('IntegerSpinner112','Worm length [mm]','mm', get(self, 'IntegerSpinner112', ValueInput112))
+        inputs.addValueInput('ValueInput11', 'Worm gear height [mm]', 'mm', get(self, 'ValueInput11', ValueInput11))
+        inputs.addFloatSpinnerCommandInput('FloatSpinner11', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner11', 14.5))
+        inputs.addValueInput('FloatSpinner112','Worm drive radius [mm]','mm', get(self, 'FloatSpinner112', ValueInput113))
         # con esto vinculo al boton OK
 
         onExecute=cmdDef11OKButtonPressedEventHandler()
