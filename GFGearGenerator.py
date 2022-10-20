@@ -1749,8 +1749,8 @@ class cmdDef8PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner8', 'Number of teeth for the wheel [ ]', 6, 250, 1, 17)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner82', 'Number of teeth for the pinion [ ]', 6, 250, 1, 17)
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner8', 'Number of teeth, wheel [ ]', 6, 250, 1, 17)
+        inputs.addIntegerSpinnerCommandInput('IntegerSpinner82', 'Number of teeth, pinion [ ]', 6, 250, 1, 17)
         inputs.addFloatSpinnerCommandInput('FloatSpinner8', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, 14.5)
         # con esto vinculo al boton OK
         onExecute=cmdDef8OKButtonPressedEventHandler()
@@ -1768,7 +1768,7 @@ class cmdDef9PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ValueInput9=adsk.core.ValueInput.createByReal(1)
 
         aaok9=inputs.addBoolValueInput('aok9','Fast Compute', True, '', defaultfc)
-        inputs.addFloatSpinnerCommandInput('FloatSpinner92','Profile shifting coefficient "X" [ ]','',-1,1,.01,0)
+        inputs.addFloatSpinnerCommandInput('FloatSpinner92','Profile shifting coef "X" [ ]','',-1,1,.01,0)
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
         # u=inputs.addDropDownCommandInput('DropDownCommandInput9','Module [mm]',1)
         # qty=u.listItems
@@ -1797,7 +1797,7 @@ class cmdDef10PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         aaok10=inputs.addBoolValueInput('aok10', 'Fast Compute', True, '', defaultfc)
         inputs.addBoolValueInput('BoolValue10', 'Clock Wise', True, '', False)
         inputs.addBoolValueInput('BoolValue102','Double Helical',True,'',False)
-        inputs.addFloatSpinnerCommandInput('FloatSpinner103','Profile shifting coefficient "X" [ ]','',-1,1,.01,0)
+        inputs.addFloatSpinnerCommandInput('FloatSpinner103','Profile shifting coef "X" [ ]','',-1,1,.01,0)
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(.03))
         # u=inputs.addDropDownCommandInput('DropDownCommandInput10','Module [mm]',1)
         # qty=u.listItems
