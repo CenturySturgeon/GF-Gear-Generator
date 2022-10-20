@@ -1539,13 +1539,13 @@ def set(obj_type, key, value):
     if obj_type not in command_cache:
         command_cache[obj_type] = {}
     command_cache[obj_type][key] = value
-def save_params(command_type, command_inputs, angles=None):
+def save_params(command_type, command_inputs):
     for i in range(int(command_inputs.count)):
         try:
             input = command_inputs.item(i)
             if type(input) not in [adsk.core.ButtonRowCommandInput]:
                 val = input.value
-                if angles is not None and input.id in angles:
+                if hasattr(input, 'unitType') and input.unitType == 'deg':
                     val = radToDeg(val) 
                 set(command_type, input.id, val)
         except Exception as e:
@@ -1878,8 +1878,7 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             # ui.messageBox(str(m) + " " +str(juan))
             ap=inputs2.itemById('FloatSpinner1').value
 
-            save_params(cmdDefPressedEventHandler, inputs2, 
-                angles=["FloatSpinner1"])
+            save_params(cmdDefPressedEventHandler, inputs2)
             
             design = adsk.fusion.Design.cast(app.activeProduct)
             root = design.activeComponent
@@ -1909,8 +1908,7 @@ class cmdDef2OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
         inputs2=eventArgs.command.commandInputs
 
-        save_params(cmdDef2PressedEventHandler, inputs2,
-            angles=["FloatSpinner2"])
+        save_params(cmdDef2PressedEventHandler, inputs2)
 
         aaok=inputs2.itemById('aok2').value
         z=inputs2.itemById('IntegerSpinner2').value
@@ -1943,8 +1941,7 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         newComp = occ.component
         inputs2=eventArgs.command.commandInputs
         
-        save_params(cmdDef3PressedEventHandler, inputs2,
-            angles=["FloatSpinner3"])
+        save_params(cmdDef3PressedEventHandler, inputs2)
 
         try:
             aaok=inputs2.itemById('aok3').value
@@ -1982,8 +1979,7 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             design=app.activeProduct
             rootComp=design.rootComponent
             inputs2=eventArgs.command.commandInputs
-            save_params(cmdDef4PressedEventHandler, inputs2, 
-                angles=["FloatSpinner42", "FloatSpinner4"])
+            save_params(cmdDef4PressedEventHandler, inputs2)
 
             aaok=inputs2.itemById('aok4').value
             vul=inputs2.itemById('BoolValue4').value
@@ -2034,8 +2030,7 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
         newComp = occ.component
 
-        save_params(cmdDef5PressedEventHandler, inputs2,
-            angles=['FloatSpinner5', 'FloatSpinner52'])
+        save_params(cmdDef5PressedEventHandler, inputs2)
 
         aaok=inputs2.itemById('aok5').value
         vul=inputs2.itemById('BoolValue5').value
@@ -2087,8 +2082,7 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
         newComp = occ.component
 
-        save_params(cmdDef6PressedEventHandler, inputs2,
-            angles=['FloatSpinner6', 'FloatSpinner62'])
+        save_params(cmdDef6PressedEventHandler, inputs2)
 
         try:
             aaok=inputs2.itemById('aok6').value
@@ -2141,8 +2135,7 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
         rootComp = newComp
 
-        save_params(cmdDef7PressedEventHandler, eventArgs.command.commandInputs,
-            angles=['FloatSpinner7', 'FloatSpinner72'])
+        save_params(cmdDef7PressedEventHandler, eventArgs.command.commandInputs)
         
         inputs2 = eventArgs.command.commandInputs
 #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
@@ -2222,8 +2215,7 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         newComp = occ.component
         hb=hidebodies(newComp)
 
-        save_params(cmdDef8PressedEventHandler, eventArgs.command.commandInputs,
-            angles=['FloatSpinner8'])
+        save_params(cmdDef8PressedEventHandler, eventArgs.command.commandInputs)
 
         try:
             
@@ -2317,8 +2309,7 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             newComp = occ.component
             inputs2=eventArgs.command.commandInputs
 
-            save_params(cmdDef9PressedEventHandler, eventArgs.command.commandInputs,
-                angles=['FloatSpinner9'])
+            save_params(cmdDef9PressedEventHandler, eventArgs.command.commandInputs)
 
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('aok9').value
@@ -2383,8 +2374,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         newComp = occ.component
         inputs2=eventArgs.command.commandInputs
         
-        save_params(cmdDef10PressedEventHandler, eventArgs.command.commandInputs,
-            angles=['FloatSpinner10', 'FloatSpinner102'])
+        save_params(cmdDef10PressedEventHandler, eventArgs.command.commandInputs)
 
         aaok=inputs2.itemById('aok10').value
         vul=inputs2.itemById('BoolValue10').value
@@ -2472,8 +2462,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         #aqui me quede
         inputs2=eventArgs.command.commandInputs
 
-        save_params(cmdDef11PressedEventHandler, eventArgs.command.commandInputs,
-            angles=['FloatSpinner11'])
+        save_params(cmdDef11PressedEventHandler, eventArgs.command.commandInputs)
 
         try:
             aaok=inputs2.itemById('aok11').value
