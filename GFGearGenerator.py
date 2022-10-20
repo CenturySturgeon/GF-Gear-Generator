@@ -1543,7 +1543,7 @@ def save_params(command_type, command_inputs):
     for i in range(int(command_inputs.count)):
         try:
             input = command_inputs.item(i)
-            if type(input) not in [adsk.core.ButtonRowCommandInput]:
+            if type(input) not in [adsk.core.ButtonRowCommandInput, adsk.core.DropDownCommandInput]:
                 val = input.value
                 if hasattr(input, 'unitType') and input.unitType == 'deg':
                     val = radToDeg(val) 
@@ -2215,8 +2215,6 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         newComp = occ.component
         hb=hidebodies(newComp)
 
-        save_params(cmdDef8PressedEventHandler, eventArgs.command.commandInputs)
-
         try:
             
             design = app.activeProduct
@@ -2226,6 +2224,7 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             ui=app.userInterface
             #design = app.activeProduct
             inputs2=eventArgs.command.commandInputs
+            save_params(cmdDef8PressedEventHandler, eventArgs.command.commandInputs)
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('aok8').value
             z=inputs2.itemById('IntegerSpinner8').value
