@@ -2318,7 +2318,7 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             inputs2=eventArgs.command.commandInputs
 
             save_params(cmdDef9PressedEventHandler, eventArgs.command.commandInputs,
-                angles=['FloatSpinner9', 'FloatSpinner92'])
+                angles=['FloatSpinner9'])
 
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('aok9').value
