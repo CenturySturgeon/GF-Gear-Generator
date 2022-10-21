@@ -1133,7 +1133,7 @@ def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ):
         crwoncut(anchoeng, rb, rf, ra, espesorc, newComp)
     if (ra + espesorc) < (rf + ra):
         excesscut(ra, rf, espesorc, anchoeng,newComp)
-    moveocc((-m*z)/10,0,0,occ)
+    moveocc(-(rf+ra)/10,0,0,occ)
     if rootComp.constructionPlanes.isValid==True:
         planos=rootComp.constructionPlanes
         planos.item(0).isVisible=False
@@ -2104,12 +2104,20 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             aaok=inputs2.itemById('FastCompute').value
             z=inputs2.itemById('Z').value
             #q=inputs2.itemById('DropDownCommandInput3').selectedItem.name
-            anchoeng=inputs2.itemById('GearHeight_mm').value
-            m=inputs2.itemById('Module').value*10
             # a=str(q[0:len(q) - 3])
             # m=float(a)
+
+            standard = inputs2.itemById('standard').selectedItem.name
+            if standard == 'Metric':
+                m=inputs2.itemById('Module').value*10
+                anchoeng=inputs2.itemById('GearHeight_mm').value
+                espesorc=inputs2.itemById('RadialThickness_mm').value*10
+            elif standard == 'English':
+                m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                anchoeng=inputs2.itemById('GearHeight_En').value
+                espesorc=inputs2.itemById('RadialThickness_in').value*10
+
             ap=inputs2.itemById('PressureAngle').value
-            espesorc=inputs2.itemById('RadialThickness_mm').value*10
             hb=hidebodies(newComp)
             coronasnostd(aaok,z,m,anchoeng,ap,espesorc, newComp, occ)
             showhiddenbodies(hb,newComp)
