@@ -1561,10 +1561,17 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
         # Fusion's default units are cm, since your units are mm you'll need to divide that value with 10
         # a ValueInput = 1 will show as 10mm
         aaok=inputs.addBoolValueInput('aok1','Fast Compute',True,'', get(self, 'aok1', defaultfc))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 7.62)))
+        pitch.isVisible = False
         # u=inputs.addDropDownCommandInput('DropDownCommandInput1','Module [mm]', get(self, 'DropDownCommandInput1', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
@@ -1572,11 +1579,60 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner1', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner1', 17))
         inputs.addValueInput('ValueInput1', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 1)))
+        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 12.7)))
+        inHeight.isVisible = False
         inputs.addFloatSpinnerCommandInput('FloatSpinner1', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner1', 14.5))
+        
+        # When any input changes, the following handler triggers
+        onInputChanged = GearCommandInputChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged) 
+
         # con esto vinculo al boton OK
         onExecute=cmdDefOKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
+
+# Event handler for the inputChanged event.
+class GearCommandInputChangedHandler(adsk.core.InputChangedEventHandler):
+    def __init__(self):
+        super().__init__()
+    def notify(self, args):
+        app=adsk.core.Application.get()
+        ui=app.userInterface
+        try:
+            eventArgs = adsk.core.InputChangedEventArgs.cast(args)
+            
+            changedInput = eventArgs.input
+            inputs2=changedInput.parentCommand.commandInputs
+            
+            #global _units
+            if changedInput.id == 'standard':
+                if changedInput.selectedItem.name == 'English':
+                    # English system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = False
+                    inputs2.itemById('Pitch').isVisible = True
+                    
+                    # Height Value Inputs
+                    inputs2.itemById('ValueInput1').isVisible = False
+                    inputs2.itemById('GearHeight_En').isVisible = True
+
+                elif changedInput.selectedItem.name == 'Metric':
+                    # Metric system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = True
+                    inputs2.itemById('Pitch').isVisible = False
+                    
+                    # Height Value Inputs
+                    inputs2.itemById('ValueInput1').isVisible = True
+                    inputs2.itemById('GearHeight_En').isVisible = False
+        except:
+            if ui:
+                ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+ 
 
 class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self):
@@ -1870,12 +1926,18 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             aaok=inputs2.itemById('aok1').value
             z=inputs2.itemById('IntegerSpinner1').value
             #q=inputs2.itemById('DropDownCommandInput1').selectedItem.name
-            anchoeng=inputs2.itemById('ValueInput1').value
-            # Fusion's default units are cm, since you're using mm you'll have to multiply the value per 20
-            m=inputs2.itemById('Module').value*10
             # a=str(q[0:len(q)-3])
             # m=float(a)
-            # ui.messageBox(str(m) + " " +str(juan))
+
+            standard = inputs2.itemById('standard').selectedItem.name
+            # Fusion's default units are cm, since you're using mm you'll have to multiply the value per 20
+            if standard == 'Metric':
+                m=inputs2.itemById('Module').value*10
+                anchoeng=inputs2.itemById('ValueInput1').value
+            elif standard == 'English':
+                m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                anchoeng=inputs2.itemById('GearHeight_En').value
+
             ap=inputs2.itemById('FloatSpinner1').value
 
             save_params(cmdDefPressedEventHandler, inputs2)
