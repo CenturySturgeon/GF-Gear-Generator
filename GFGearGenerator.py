@@ -164,8 +164,8 @@ def skeng1(m,ap,rf,ra,x,y,x2,y2,aok,Ttda,escorona,esStdr,espesorc,newComp):
         dp=2*ra-2*m
         db=dp*mt.cos(ap)
         v=0
-        if db<=2*rf:
-            v=2*rf-db
+        # if db<=2*rf:
+        #     v=2*rf-db
         if escorona==True and esStdr==True:
             circrf=circles.addByCenterRadius(orig,rcor/10)
             circra=circles.addByCenterRadius(orig,rf/10)
@@ -1026,7 +1026,7 @@ def coronasnostd(aaok,z,m,anchoeng,ap,espesorc,newComp,occ):
         crwoncut(anchoeng, rb, rf, ra, espesorc, newComp)
     if (ra + espesorc) < (rf + ra):
         excesscut(ra, rf, espesorc, anchoeng, newComp)
-    moveocc((-m*z)/10,0,0,occ)
+    moveocc(-(rf+ra)/10,0,0,occ)
     #movebody((-m*z)/10,0,0)
 
 def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp):
@@ -1669,7 +1669,7 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inRadialThickness.isVisible = False
 
         # When any input changes, the following handler triggers
-        onInputChanged = InternalSpurStd_ChangedHandler()
+        onInputChanged = InternalSpurGear_ChangedHandler()
         cmd.inputChanged.add(onInputChanged)
         handlers.append(onInputChanged) 
 
@@ -1678,8 +1678,50 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
 
+class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
+    def __init__(self):
+        super().__init__()
+    def notify(self,args):
+        app = adsk.core.Application.get()
+        ui = app.userInterface
+        cmd = args.command
+        inputs = cmd.commandInputs
 
-class InternalSpurStd_ChangedHandler(adsk.core.InputChangedEventHandler):
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
+        aaok3=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+        # u=inputs.addDropDownCommandInput('DropDownCommandInput3','Module [mm]', get(self, 'DropDownCommandInput3', 1))
+        # qty=u.listItems
+        # qty.add('0.3 mm',True,'si')
+        # for nn in range(0,len(list)):
+        #     qty.add(list[nn],False)
+        inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
+        inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
+        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_En', 1.27)))
+        inHeight.isVisible = False
+
+        inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
+        inputs.addValueInput('RadialThickness_mm','Radial thickness [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_mm', 0.5)))
+        inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
+        inRadialThickness.isVisible = False
+
+        # When any input changes, the following handler triggers
+        onInputChanged = InternalSpurGear_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged)
+
+        # con esto vinculo al boton OK
+        onExecute=cmdDef3OKButtonPressedEventHandler()
+        cmd.execute.add(onExecute)
+        handlers.append(onExecute)
+
+class InternalSpurGear_ChangedHandler(adsk.core.InputChangedEventHandler):
     def __init__(self):
         super().__init__()
     def notify(self, args):
@@ -1727,32 +1769,6 @@ class InternalSpurStd_ChangedHandler(adsk.core.InputChangedEventHandler):
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
-    def __init__(self):
-        super().__init__()
-    def notify(self,args):
-        app = adsk.core.Application.get()
-        ui = app.userInterface
-        cmd = args.command
-        inputs = cmd.commandInputs
-
-
-        aaok3=inputs.addBoolValueInput('aok3', 'Fast Compute', True, '', get(self, 'aok3', defaultfc))
-        inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput3','Module [mm]', get(self, 'DropDownCommandInput3', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner3', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner3', 17))
-        inputs.addValueInput('ValueInput3', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput3', 1)))
-        inputs.addFloatSpinnerCommandInput('FloatSpinner3', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner3', 14.5))
-        inputs.addValueInput('ValueInput32','Radial thickness [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput32', 0.5)))
-
-        # con esto vinculo al boton OK
-        onExecute=cmdDef3OKButtonPressedEventHandler()
-        cmd.execute.add(onExecute)
-        handlers.append(onExecute)
 
 class cmdDef4PressedEventHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self):
@@ -2085,15 +2101,15 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         save_params(cmdDef3PressedEventHandler, inputs2)
 
         try:
-            aaok=inputs2.itemById('aok3').value
-            z=inputs2.itemById('IntegerSpinner3').value
+            aaok=inputs2.itemById('FastCompute').value
+            z=inputs2.itemById('Z').value
             #q=inputs2.itemById('DropDownCommandInput3').selectedItem.name
-            anchoeng=inputs2.itemById('ValueInput3').value
+            anchoeng=inputs2.itemById('GearHeight_mm').value
             m=inputs2.itemById('Module').value*10
             # a=str(q[0:len(q) - 3])
             # m=float(a)
-            ap=inputs2.itemById('FloatSpinner3').value
-            espesorc=inputs2.itemById('ValueInput32').value*10
+            ap=inputs2.itemById('PressureAngle').value
+            espesorc=inputs2.itemById('RadialThickness_mm').value*10
             hb=hidebodies(newComp)
             coronasnostd(aaok,z,m,anchoeng,ap,espesorc, newComp, occ)
             showhiddenbodies(hb,newComp)
