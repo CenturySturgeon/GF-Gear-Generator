@@ -1568,7 +1568,7 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
 
         # Fusion's default units are cm, since your units are mm you'll need to divide that value with 10
         # a ValueInput = 1 will show as 10mm
-        aaok=inputs.addBoolValueInput('aok1','Fast Compute',True,'', get(self, 'aok1', defaultfc))
+        aaok=inputs.addBoolValueInput('FastCompute','Fast Compute',True,'', get(self, 'FastCompute', defaultfc))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
         pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
         pitch.isVisible = False
@@ -1577,11 +1577,11 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner1', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner1', 17))
-        inputs.addValueInput('ValueInput1', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 1)))
-        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 1.27)))
+        inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
+        inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
+        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_En', 1.27)))
         inHeight.isVisible = False
-        inputs.addFloatSpinnerCommandInput('FloatSpinner1', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner1', 14.5))
+        inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
         
         # When any input changes, the following handler triggers
         onInputChanged = SpurGear_ChangedHandler()
@@ -1617,7 +1617,7 @@ class SpurGear_ChangedHandler(adsk.core.InputChangedEventHandler):
                     inputs2.itemById('Pitch').isVisible = True
                     
                     # Height Value Inputs
-                    inputs2.itemById('ValueInput1').isVisible = False
+                    inputs2.itemById('GearHeight_mm').isVisible = False
                     inputs2.itemById('GearHeight_En').isVisible = True
 
                 elif changedInput.selectedItem.name == 'Metric':
@@ -1628,7 +1628,7 @@ class SpurGear_ChangedHandler(adsk.core.InputChangedEventHandler):
                     inputs2.itemById('Pitch').isVisible = False
                     
                     # Height Value Inputs
-                    inputs2.itemById('ValueInput1').isVisible = True
+                    inputs2.itemById('GearHeight_mm').isVisible = True
                     inputs2.itemById('GearHeight_En').isVisible = False
         except:
             if ui:
@@ -1649,7 +1649,7 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('Metric', True)
         standard.listItems.add('English', False)
 
-        aaok2=inputs.addBoolValueInput('aok2', 'Fast Compute', True, '', get(self, 'aok2', defaultfc))
+        aaok2=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
         pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
         pitch.isVisible = False
@@ -1658,13 +1658,13 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         # qty.add('0.3 mm',True,'si')
         # for nn in range(0,len(list)):
         #     qty.add(list[nn],False)
-        inputs.addIntegerSpinnerCommandInput('IntegerSpinner2', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner2', 17))
-        inputs.addValueInput('ValueInput2', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput2', 1)))
-        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 1.27)))
+        inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
+        inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
+        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_En', 1.27)))
         inHeight.isVisible = False
 
-        inputs.addFloatSpinnerCommandInput('FloatSpinner2', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner2', 14.5))
-        inputs.addValueInput('ValueInput22','Radial thickness [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput22', 0.5)))
+        inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
+        inputs.addValueInput('RadialThickness_mm','Radial thickness [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_mm', 0.5)))
         inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
         inRadialThickness.isVisible = False
 
@@ -1702,11 +1702,11 @@ class InternalSpurStd_ChangedHandler(adsk.core.InputChangedEventHandler):
                     inputs2.itemById('Pitch').isVisible = True
                     
                     # Height Value Inputs
-                    inputs2.itemById('ValueInput2').isVisible = False
+                    inputs2.itemById('GearHeight_mm').isVisible = False
                     inputs2.itemById('GearHeight_En').isVisible = True
 
                     # Radial thickness values
-                    inputs2.itemById('ValueInput22').isVisible = False
+                    inputs2.itemById('RadialThickness_mm').isVisible = False
                     inputs2.itemById('RadialThickness_in').isVisible = True
 
                 elif changedInput.selectedItem.name == 'Metric':
@@ -1717,11 +1717,11 @@ class InternalSpurStd_ChangedHandler(adsk.core.InputChangedEventHandler):
                     inputs2.itemById('Pitch').isVisible = False
                     
                     # Height Value Inputs
-                    inputs2.itemById('ValueInput2').isVisible = True
+                    inputs2.itemById('GearHeight_mm').isVisible = True
                     inputs2.itemById('GearHeight_En').isVisible = False
 
                     # Radial thickness values
-                    inputs2.itemById('ValueInput22').isVisible = True
+                    inputs2.itemById('RadialThickness_mm').isVisible = True
                     inputs2.itemById('RadialThickness_in').isVisible = False
         except:
             if ui:
@@ -1990,8 +1990,8 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             design = app.activeProduct
             inputs2=eventArgs.command.commandInputs
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
-            aaok=inputs2.itemById('aok1').value
-            z=inputs2.itemById('IntegerSpinner1').value
+            aaok=inputs2.itemById('FastCompute').value
+            z=inputs2.itemById('Z').value
             #q=inputs2.itemById('DropDownCommandInput1').selectedItem.name
             # a=str(q[0:len(q)-3])
             # m=float(a)
@@ -2000,12 +2000,12 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             # Fusion's default units are cm, since you're using mm you'll have to multiply the value per 20
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
-                anchoeng=inputs2.itemById('ValueInput1').value
+                anchoeng=inputs2.itemById('GearHeight_mm').value
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
                 anchoeng=inputs2.itemById('GearHeight_En').value
 
-            ap=inputs2.itemById('FloatSpinner1').value
+            ap=inputs2.itemById('PressureAngle').value
 
             save_params(cmdDefPressedEventHandler, inputs2)
             
@@ -2039,8 +2039,8 @@ class cmdDef2OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
 
         save_params(cmdDef2PressedEventHandler, inputs2)
         try:
-            aaok=inputs2.itemById('aok2').value
-            z=inputs2.itemById('IntegerSpinner2').value
+            aaok=inputs2.itemById('FastCompute').value
+            z=inputs2.itemById('Z').value
             #q=inputs2.itemById('DropDownCommandInput2').selectedItem.name
             # a=str(q[0:len(q) - 3])
             # m=float(a)
@@ -2048,14 +2048,14 @@ class cmdDef2OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             standard = inputs2.itemById('standard').selectedItem.name
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
-                anchoeng=inputs2.itemById('ValueInput2').value
-                espesorc=inputs2.itemById('ValueInput22').value*10
+                anchoeng=inputs2.itemById('GearHeight_mm').value
+                espesorc=inputs2.itemById('RadialThickness_mm').value*10
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
                 anchoeng=inputs2.itemById('GearHeight_En').value
                 espesorc=inputs2.itemById('RadialThickness_in').value*10
 
-            ap=inputs2.itemById('FloatSpinner2').value
+            ap=inputs2.itemById('PressureAngle').value
         
             hb=hidebodies(newComp)
             coronastd(aaok,z,m,ap,anchoeng,espesorc,newComp)
