@@ -1570,7 +1570,7 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         # a ValueInput = 1 will show as 10mm
         aaok=inputs.addBoolValueInput('aok1','Fast Compute',True,'', get(self, 'aok1', defaultfc))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 7.62)))
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
         pitch.isVisible = False
         # u=inputs.addDropDownCommandInput('DropDownCommandInput1','Module [mm]', get(self, 'DropDownCommandInput1', 1))
         # qty=u.listItems
@@ -1579,12 +1579,12 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner1', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner1', 17))
         inputs.addValueInput('ValueInput1', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 1)))
-        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 12.7)))
+        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 1.27)))
         inHeight.isVisible = False
         inputs.addFloatSpinnerCommandInput('FloatSpinner1', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner1', 14.5))
         
         # When any input changes, the following handler triggers
-        onInputChanged = GearCommandInputChangedHandler()
+        onInputChanged = SpurGear_ChangedHandler()
         cmd.inputChanged.add(onInputChanged)
         handlers.append(onInputChanged) 
 
@@ -1594,7 +1594,7 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         handlers.append(onExecute)
 
 # Event handler for the inputChanged event.
-class GearCommandInputChangedHandler(adsk.core.InputChangedEventHandler):
+class SpurGear_ChangedHandler(adsk.core.InputChangedEventHandler):
     def __init__(self):
         super().__init__()
     def notify(self, args):
@@ -1603,10 +1603,11 @@ class GearCommandInputChangedHandler(adsk.core.InputChangedEventHandler):
         try:
             eventArgs = adsk.core.InputChangedEventArgs.cast(args)
             
+            # Gets the command input that was changed and its parent's command inputs
             changedInput = eventArgs.input
             inputs2=changedInput.parentCommand.commandInputs
             
-            #global _units
+            # In the case that's the standard, it switches visibiity of module/pitch value inputs as well as gear height
             if changedInput.id == 'standard':
                 if changedInput.selectedItem.name == 'English':
                     # English system is selected
@@ -1643,9 +1644,15 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd = args.command
         inputs = cmd.commandInputs
 
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
 
         aaok2=inputs.addBoolValueInput('aok2', 'Fast Compute', True, '', get(self, 'aok2', defaultfc))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
         # u=inputs.addDropDownCommandInput('DropDownCommandInput2','Module [mm]', get(self, 'DropDownCommandInput2', 1))
         # qty=u.listItems
         # qty.add('0.3 mm',True,'si')
@@ -1653,12 +1660,72 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         #     qty.add(list[nn],False)
         inputs.addIntegerSpinnerCommandInput('IntegerSpinner2', 'Number of teeth [ ]', 6, 250, 1, get(self, 'IntegerSpinner2', 17))
         inputs.addValueInput('ValueInput2', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput2', 1)))
+        inHeight = inputs.addValueInput('GearHeight_En', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'ValueInput1', 1.27)))
+        inHeight.isVisible = False
+
         inputs.addFloatSpinnerCommandInput('FloatSpinner2', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'FloatSpinner2', 14.5))
         inputs.addValueInput('ValueInput22','Radial thickness [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'ValueInput22', 0.5)))
+        inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
+        inRadialThickness.isVisible = False
+
+        # When any input changes, the following handler triggers
+        onInputChanged = InternalSpurStd_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged) 
+
         # con esto vinculo al boton OK
         onExecute=cmdDef2OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
+
+
+class InternalSpurStd_ChangedHandler(adsk.core.InputChangedEventHandler):
+    def __init__(self):
+        super().__init__()
+    def notify(self, args):
+        app=adsk.core.Application.get()
+        ui=app.userInterface
+        try:
+            eventArgs = adsk.core.InputChangedEventArgs.cast(args)
+            
+            # Gets the command input that was changed and its parent's command inputs
+            changedInput = eventArgs.input
+            inputs2=changedInput.parentCommand.commandInputs
+            
+            # In the case that's the standard, it switches visibiity of module/pitch value inputs as well as gear height
+            if changedInput.id == 'standard':
+                if changedInput.selectedItem.name == 'English':
+                    # English system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = False
+                    inputs2.itemById('Pitch').isVisible = True
+                    
+                    # Height Value Inputs
+                    inputs2.itemById('ValueInput2').isVisible = False
+                    inputs2.itemById('GearHeight_En').isVisible = True
+
+                    # Radial thickness values
+                    inputs2.itemById('ValueInput22').isVisible = False
+                    inputs2.itemById('RadialThickness_in').isVisible = True
+
+                elif changedInput.selectedItem.name == 'Metric':
+                    # Metric system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = True
+                    inputs2.itemById('Pitch').isVisible = False
+                    
+                    # Height Value Inputs
+                    inputs2.itemById('ValueInput2').isVisible = True
+                    inputs2.itemById('GearHeight_En').isVisible = False
+
+                    # Radial thickness values
+                    inputs2.itemById('ValueInput22').isVisible = True
+                    inputs2.itemById('RadialThickness_in').isVisible = False
+        except:
+            if ui:
+                ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
 class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self):
@@ -1971,22 +2038,34 @@ class cmdDef2OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         inputs2=eventArgs.command.commandInputs
 
         save_params(cmdDef2PressedEventHandler, inputs2)
+        try:
+            aaok=inputs2.itemById('aok2').value
+            z=inputs2.itemById('IntegerSpinner2').value
+            #q=inputs2.itemById('DropDownCommandInput2').selectedItem.name
+            # a=str(q[0:len(q) - 3])
+            # m=float(a)
 
-        aaok=inputs2.itemById('aok2').value
-        z=inputs2.itemById('IntegerSpinner2').value
-        #q=inputs2.itemById('DropDownCommandInput2').selectedItem.name
-        anchoeng=inputs2.itemById('ValueInput2').value
-        m=inputs2.itemById('Module').value*10
-        # a=str(q[0:len(q) - 3])
-        # m=float(a)
-        ap=inputs2.itemById('FloatSpinner2').value
-        espesorc=inputs2.itemById('ValueInput22').value*10
-        hb=hidebodies(newComp)
-        coronastd(aaok,z,m,ap,anchoeng,espesorc,newComp)
-        showhiddenbodies(hb,newComp)
-        fichatecnica(aaok,True,False,False,False,False,m,ap,z,0,espesorc,0,0,0,newComp)
-        #numerop=5
-        htl(7)
+            standard = inputs2.itemById('standard').selectedItem.name
+            if standard == 'Metric':
+                m=inputs2.itemById('Module').value*10
+                anchoeng=inputs2.itemById('ValueInput2').value
+                espesorc=inputs2.itemById('ValueInput22').value*10
+            elif standard == 'English':
+                m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                anchoeng=inputs2.itemById('GearHeight_En').value
+                espesorc=inputs2.itemById('RadialThickness_in').value*10
+
+            ap=inputs2.itemById('FloatSpinner2').value
+        
+            hb=hidebodies(newComp)
+            coronastd(aaok,z,m,ap,anchoeng,espesorc,newComp)
+            showhiddenbodies(hb,newComp)
+            fichatecnica(aaok,True,False,False,False,False,m,ap,z,0,espesorc,0,0,0,newComp)
+            #numerop=5
+            htl(7)
+        except:
+            if ui:
+                ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
 #Botón de ejecución para las coronas estándar DR
 
