@@ -2129,6 +2129,11 @@ class cmdDef11PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
         inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         WormGear_Type=inputs.addButtonRowCommandInput('WormGear_Type','Worm Gear Type', False)
         WormGear_Type.listItems.add('Helical',True,'Resources/Helical')
@@ -2137,22 +2142,90 @@ class cmdDef11PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         #usar clock wise como rosca izquierda o derecha
         inputs.addBoolValueInput('LeftThreaded', 'Left threaded', True, '', get(self, 'LeftThreaded', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput11','Module [mm]', get(self, 'DropDownCommandInput11', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('WormLength_mm','Worm length [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'WormLength_mm', 1)))
+        WormLength_in = inputs.addValueInput('WormLength_in','Worm length [in]','in', adsk.core.ValueInput.createByReal(get(self, 'WormLength_in', 1)))
+        WormLength_in.isVisible = False
+
         inputs.addValueInput('WormGearHeight_mm', 'Worm gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'WormGearHeight_mm', 1)))
+        WormGearHeight_in = inputs.addValueInput('WormGearHeight_in', 'Worm gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'WormGearHeight_in', 1)))
+        WormGearHeight_in.isVisible = False
+
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
         inputs.addValueInput('WormDriveRadius_mm','Worm drive radius [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'WormDriveRadius_mm', 0.5)))
+        WormDriveRadius_in = inputs.addValueInput('WormDriveRadius_in','Worm drive radius [in]','in', adsk.core.ValueInput.createByReal(get(self, 'WormDriveRadius_in', 0.5)))
+        WormDriveRadius_in.isVisible = False
+        
+        # When any input changes, the following handler triggers
+        onInputChanged = WormGear_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged)
+
         # con esto vinculo al boton OK
-
-
         onExecute=cmdDef11OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
+
+class WormGear_ChangedHandler(adsk.core.InputChangedEventHandler):
+    def __init__(self):
+        super().__init__()
+    def notify(self, args):
+        app=adsk.core.Application.get()
+        ui=app.userInterface
+        try:
+            eventArgs = adsk.core.InputChangedEventArgs.cast(args)
+            
+            # Gets the command input that was changed and its parent's command inputs
+            changedInput = eventArgs.input
+            inputs2=changedInput.parentCommand.commandInputs
+            
+            # In the case that's the standard, it switches visibiity of module/pitch value inputs as well as gear height
+            if changedInput.id == 'standard':
+                if changedInput.selectedItem.name == 'English':
+                    # English system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = False
+                    inputs2.itemById('Pitch').isVisible = True
+
+                    # Length values
+                    inputs2.itemById('WormLength_mm').isVisible = False
+                    inputs2.itemById('WormLength_in').isVisible = True
+                    
+                    # Height Value Inputs
+                    inputs2.itemById('WormGearHeight_mm').isVisible = False
+                    inputs2.itemById('WormGearHeight_in').isVisible = True
+
+                    # Worm Drive Radius values
+                    inputs2.itemById('WormDriveRadius_mm').isVisible = False
+                    inputs2.itemById('WormDriveRadius_in').isVisible = True
+
+                elif changedInput.selectedItem.name == 'Metric':
+                    # Metric system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = True
+                    inputs2.itemById('Pitch').isVisible = False
+                    
+                    # Length values
+                    inputs2.itemById('WormLength_mm').isVisible = True
+                    inputs2.itemById('WormLength_in').isVisible = False
+
+                    # Height Value Inputs
+                    inputs2.itemById('WormGearHeight_mm').isVisible = True
+                    inputs2.itemById('WormGearHeight_in').isVisible = False
+
+                    # Worm Drive Radius values
+                    inputs2.itemById('WormDriveRadius_mm').isVisible = True
+                    inputs2.itemById('WormDriveRadius_in').isVisible = False
+        except:
+            if ui:
+                ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+
+
 
 #Aquí van los Botones de OK
 class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
@@ -2826,14 +2899,20 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if vul2==True:
                 mult1=2
             z=inputs2.itemById('Z').value
-            largotornillo=inputs2.itemById('WormLength_mm').value*10
-            # q=inputs2.itemById('DropDownCommandInput11').selectedItem.name
-            anchoeng=inputs2.itemById('WormGearHeight_mm').value/mult1
-            m=inputs2.itemById('Module').value*10
-            # a=str(q[0:len(q) - 3])
-            # m=float(a)
+
+            standard = inputs2.itemById('standard').selectedItem.name
+            if standard == 'Metric':
+                m = inputs2.itemById('Module').value*10
+                anchoeng = inputs2.itemById('WormGearHeight_mm').value/mult1
+                largotornillo = inputs2.itemById('WormLength_mm').value*10
+                radio=inputs2.itemById('WormDriveRadius_mm').value
+            elif standard == 'English':
+                m = 25.4/(inputs2.itemById('Pitch').value/2.54)
+                anchoeng = inputs2.itemById('WormGearHeight_in').value/mult1
+                largotornillo = inputs2.itemById('WormLength_in').value*10
+                radio=inputs2.itemById('WormDriveRadius_in').value
+
             ap=inputs2.itemById('PressureAngle').value
-            radio=inputs2.itemById('WormDriveRadius_mm').value
             tipo=inputs2.itemById('WormGear_Type').selectedItem.name
 
             if tipo=='Helical':
