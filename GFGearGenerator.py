@@ -1584,7 +1584,7 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
         
         # When any input changes, the following handler triggers
-        onInputChanged = SpurGear_ChangedHandler()
+        onInputChanged = ExternalGear_ChangedHandler()
         cmd.inputChanged.add(onInputChanged)
         handlers.append(onInputChanged) 
 
@@ -1594,7 +1594,7 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         handlers.append(onExecute)
 
 # Event handler for the inputChanged event.
-class SpurGear_ChangedHandler(adsk.core.InputChangedEventHandler):
+class ExternalGear_ChangedHandler(adsk.core.InputChangedEventHandler):
     def __init__(self):
         super().__init__()
     def notify(self, args):
@@ -1649,15 +1649,11 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('Metric', True)
         standard.listItems.add('English', False)
 
-        aaok2=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
         pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
         pitch.isVisible = False
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput2','Module [mm]', get(self, 'DropDownCommandInput2', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
         inHeight = inputs.addValueInput('GearHeight_in', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_in', 1.27)))
@@ -1669,7 +1665,7 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inRadialThickness.isVisible = False
 
         # When any input changes, the following handler triggers
-        onInputChanged = InternalSpurGear_ChangedHandler()
+        onInputChanged = InternalGear_ChangedHandler()
         cmd.inputChanged.add(onInputChanged)
         handlers.append(onInputChanged) 
 
@@ -1692,15 +1688,11 @@ class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('Metric', True)
         standard.listItems.add('English', False)
 
-        aaok3=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
         pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
         pitch.isVisible = False
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput3','Module [mm]', get(self, 'DropDownCommandInput3', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
         inHeight = inputs.addValueInput('GearHeight_in', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_in', 1.27)))
@@ -1712,7 +1704,7 @@ class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inRadialThickness.isVisible = False
 
         # When any input changes, the following handler triggers
-        onInputChanged = InternalSpurGear_ChangedHandler()
+        onInputChanged = InternalGear_ChangedHandler()
         cmd.inputChanged.add(onInputChanged)
         handlers.append(onInputChanged)
 
@@ -1721,7 +1713,7 @@ class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
 
-class InternalSpurGear_ChangedHandler(adsk.core.InputChangedEventHandler):
+class InternalGear_ChangedHandler(adsk.core.InputChangedEventHandler):
     def __init__(self):
         super().__init__()
     def notify(self, args):
@@ -1779,25 +1771,36 @@ class cmdDef4PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
 
         aaok4=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput4','Module [mm]', get(self, 'DropDownCommandInput4', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+        
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
+        inHeight = inputs.addValueInput('GearHeight_in', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_in', 1.27)))
+        inHeight.isVisible = False
+        
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
         inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,45,0.5, get(self, 'HelixAngle', 15))
+        
+        # When any input changes, the following handler triggers
+        onInputChanged = ExternalGear_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged) 
+        
         # con esto vinculo al boton OK
-
         onExecute=cmdDef4OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
+
 
 class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self):
@@ -1808,20 +1811,34 @@ class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
         aaok5=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput5','Module [mm]', get(self, 'DropDownCommandInput5', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
+        inHeight = inputs.addValueInput('GearHeight_in', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_in', 1.27)))
+        inHeight.isVisible = False
+        
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
         inputs.addValueInput('RadialThickness_mm','Radial thickness [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_mm', 0.5)))
+        inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
+        inRadialThickness.isVisible = False
+        
         inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 15))
+
+        # When any input changes, the following handler triggers
+        onInputChanged = InternalGear_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged)
 
         #con esto vinculo al boton OK
         onExecute=cmdDef5OKButtonPressedEventHandler()
@@ -1837,20 +1854,34 @@ class cmdDef6PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
         aaok6=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput6','Module [mm]', get(self, 'DropDownCommandInput6', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+        
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
+        inHeight = inputs.addValueInput('GearHeight_in', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_in', 1.27)))
+        inHeight.isVisible = False
+        
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
         inputs.addValueInput('RadialThickness_mm','Radial thickness [mm]','mm', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_mm', 0.5)))
+        inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
+        inRadialThickness.isVisible = False
+        
         inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 15))
+
+        # When any input changes, the following handler triggers
+        onInputChanged = InternalGear_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged)
 
         #con esto vinculo al boton OK
         onExecute=cmdDef6OKButtonPressedEventHandler()
@@ -1866,21 +1897,84 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u = inputs.addDropDownCommandInput('DropDownCommandInput7', 'Module [mm]', get(self, 'DropDownCommandInput7', 1))
-        # qty = u.listItems
-        # qty.add('0.3 mm', True, 'si')
-        # for nn in range(0, len(list)):
-        #     qty.add(list[nn], False)
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('RackThickness_mm', 'Rack thickness [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'RackThickness_mm', 1)))
+        RackThickness_in = inputs.addValueInput('RackThickness_in', 'Rack thickness [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'RackThickness_in', .635)))
+        RackThickness_in.isVisible = False
+
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
         inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 0))
         inputs.addValueInput('RackHeight_mm', 'Rack height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'RackHeight_mm', 1)))
+        RackHeight_in = inputs.addValueInput('RackHeight_in', 'Rack height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'RackHeight_in', .635)))
+        RackHeight_in.isVisible = False
+        
+        # When any input changes, the following handler triggers
+        onInputChanged = Rack_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged)
+
         # con esto vinculo al boton OK
         onExecute = cmdDef7OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
+
+class Rack_ChangedHandler(adsk.core.InputChangedEventHandler):
+    def __init__(self):
+        super().__init__()
+    def notify(self, args):
+        app=adsk.core.Application.get()
+        ui=app.userInterface
+        try:
+            eventArgs = adsk.core.InputChangedEventArgs.cast(args)
+            
+            # Gets the command input that was changed and its parent's command inputs
+            changedInput = eventArgs.input
+            inputs2=changedInput.parentCommand.commandInputs
+            
+            # In the case that's the standard, it switches visibiity of module/pitch value inputs as well as gear height
+            if changedInput.id == 'standard':
+                if changedInput.selectedItem.name == 'English':
+                    # English system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = False
+                    inputs2.itemById('Pitch').isVisible = True
+                    
+                    # Thickness Value Inputs
+                    inputs2.itemById('RackThickness_mm').isVisible = False
+                    inputs2.itemById('RackThickness_in').isVisible = True
+
+                    # Height Value Inputs
+                    inputs2.itemById('RackHeight_mm').isVisible = False
+                    inputs2.itemById('RackHeight_in').isVisible = True
+
+                elif changedInput.selectedItem.name == 'Metric':
+                    # Metric system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = True
+                    inputs2.itemById('Pitch').isVisible = False
+
+                    # Thickness Value Inputs
+                    inputs2.itemById('RackThickness_mm').isVisible = True
+                    inputs2.itemById('RackThickness_in').isVisible = False
+                    
+                    # Height Value Inputs
+                    inputs2.itemById('RackHeight_mm').isVisible = True
+                    inputs2.itemById('RackHeight_in').isVisible = False
+        except:
+            if ui:
+                ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+ 
 
 class cmdDef8PressedEventHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self):
@@ -1891,20 +1985,63 @@ class cmdDef8PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
-        aaok8=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
+        inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput8','Module [mm]', get(self, 'DropDownCommandInput8', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+
         inputs.addIntegerSpinnerCommandInput('ZWheel', 'Number of teeth, wheel [ ]', 6, 250, 1, get(self, 'ZWheel', 17))
         inputs.addIntegerSpinnerCommandInput('ZPinion', 'Number of teeth, pinion [ ]', 6, 250, 1, get(self, 'ZPinion', 17))
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
+        
+        # When any input changes, the following handler triggers
+        onInputChanged = Bevel_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged)
+        
         # con esto vinculo al boton OK
         onExecute=cmdDef8OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
+
+class Bevel_ChangedHandler(adsk.core.InputChangedEventHandler):
+    def __init__(self):
+        super().__init__()
+    def notify(self, args):
+        app=adsk.core.Application.get()
+        ui=app.userInterface
+        try:
+            eventArgs = adsk.core.InputChangedEventArgs.cast(args)
+            
+            # Gets the command input that was changed and its parent's command inputs
+            changedInput = eventArgs.input
+            inputs2=changedInput.parentCommand.commandInputs
+            
+            # In the case that's the standard, it switches visibiity of module/pitch value inputs as well as gear height
+            if changedInput.id == 'standard':
+                if changedInput.selectedItem.name == 'English':
+                    # English system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = False
+                    inputs2.itemById('Pitch').isVisible = True
+
+                elif changedInput.selectedItem.name == 'Metric':
+                    # Metric system is selected
+
+                    # Tooth Size Value Inputs
+                    inputs2.itemById('Module').isVisible = True
+                    inputs2.itemById('Pitch').isVisible = False
+
+        except:
+            if ui:
+                ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+ 
 
 class cmdDef9PressedEventHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self):
@@ -1915,17 +2052,29 @@ class cmdDef9PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
-        aaok9=inputs.addBoolValueInput('FastCompute','Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
+        inputs.addBoolValueInput('FastCompute','Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addFloatSpinnerCommandInput('X','Profile shifting coef "X" [ ]','',-1,1,.01, get(self, 'X', 0))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput9','Module [mm]', get(self, 'DropDownCommandInput9', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
+        inHeight = inputs.addValueInput('GearHeight_in', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_in', 1.27)))
+        inHeight.isVisible = False
+
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
+        
+        # When any input changes, the following handler triggers
+        onInputChanged = ExternalGear_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged)
+        
         # con esto vinculo al boton OK
         onExecute=cmdDef9OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
@@ -1940,22 +2089,33 @@ class cmdDef10PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         cmd=args.command
         inputs=cmd.commandInputs
 
-        aaok10=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        # Standard dropdown menu
+        standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
+        standard.listItems.add('Metric', True)
+        standard.listItems.add('English', False)
+
+        inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addFloatSpinnerCommandInput('X','Profile shifting coef "X" [ ]','',-1,1,.01, get(self, 'X', 0))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
-        # u=inputs.addDropDownCommandInput('DropDownCommandInput10','Module [mm]', get(self, 'DropDownCommandInput10', 1))
-        # qty=u.listItems
-        # qty.add('0.3 mm',True,'si')
-        # for nn in range(0,len(list)):
-        #     qty.add(list[nn],False)
+        pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
+        pitch.isVisible = False
+       
         inputs.addIntegerSpinnerCommandInput('Z', 'Number of teeth [ ]', 6, 250, 1, get(self, 'Z', 17))
         inputs.addValueInput('GearHeight_mm', 'Gear height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_mm', 1)))
+        inHeight = inputs.addValueInput('GearHeight_in', 'Gear height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'GearHeight_in', 1.27)))
+        inHeight.isVisible = False
+        
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
         inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,45,0.5, get(self, 'HelixAngle', 15))
-        # con esto vinculo al boton OK
+        
+        # When any input changes, the following handler triggers
+        onInputChanged = ExternalGear_ChangedHandler()
+        cmd.inputChanged.add(onInputChanged)
+        handlers.append(onInputChanged)
 
+        # con esto vinculo al boton OK
         onExecute=cmdDef10OKButtonPressedEventHandler()
         cmd.execute.add(onExecute)
         handlers.append(onExecute)
@@ -2153,11 +2313,15 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if vul2==True:
                 mult1=2
             z=inputs2.itemById('Z').value
-            # q=inputs2.itemById('DropDownCommandInput4').selectedItem.name
-            anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
-            # a=str(q[0:len(q) - 3])
-            # m=float(a)
-            m=inputs2.itemById('Module').value*10
+            
+            standard = inputs2.itemById('standard').selectedItem.name
+            if standard == 'Metric':
+                m=inputs2.itemById('Module').value*10
+                anchoeng=inputs2.itemById('GearHeight_mm').value
+            elif standard == 'English':
+                m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                anchoeng=inputs2.itemById('GearHeight_in').value
+            
             ap=inputs2.itemById('PressureAngle').value
             ah=inputs2.itemById('HelixAngle').value
 
@@ -2204,13 +2368,18 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         if vul2==True:
             mult1 =2
         z=inputs2.itemById('Z').value
-        # q=inputs2.itemById('DropDownCommandInput5').selectedItem.name
-        anchoeng=inputs2.itemById('GearHeight_mm').value / mult1
-        m=inputs2.itemById('Module').value*10
-        # a=str(q[0:len(q)-3])
-        # m=float(a)
+       
+        standard = inputs2.itemById('standard').selectedItem.name
+        if standard == 'Metric':
+            m=inputs2.itemById('Module').value*10
+            anchoeng=inputs2.itemById('GearHeight_mm').value
+            espesorc=inputs2.itemById('RadialThickness_mm').value*10
+        elif standard == 'English':
+            m=25.4/(inputs2.itemById('Pitch').value/2.54)
+            anchoeng=inputs2.itemById('GearHeight_in').value
+            espesorc=inputs2.itemById('RadialThickness_in').value*10
+
         ap=inputs2.itemById('PressureAngle').value
-        espesorc=inputs2.itemById('RadialThickness_mm').value*10
         ah=inputs2.itemById('HelixAngle').value
         hb=hidebodies(newComp)
         try:
@@ -2257,13 +2426,18 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if vul2==True:
                 mult1=2
             z=inputs2.itemById('Z').value
-            # q=inputs2.itemById('DropDownCommandInput6').selectedItem.name
-            anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
-            m=inputs2.itemById('Module').value*10
-            # a=str(q[0:len(q)-3])
-            # m=float(a)
+            
+            standard = inputs2.itemById('standard').selectedItem.name
+            if standard == 'Metric':
+                m=inputs2.itemById('Module').value*10
+                anchoeng=inputs2.itemById('GearHeight_mm').value
+                espesorc=inputs2.itemById('RadialThickness_mm').value*10
+            elif standard == 'English':
+                m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                anchoeng=inputs2.itemById('GearHeight_in').value
+                espesorc=inputs2.itemById('RadialThickness_in').value*10
+
             ap=inputs2.itemById('PressureAngle').value
-            espesorc=inputs2.itemById('RadialThickness_mm').value*10
             ah=inputs2.itemById('HelixAngle').value
             hb=hidebodies(newComp)
             try:
@@ -2305,14 +2479,19 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         inputs2 = eventArgs.command.commandInputs
 #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
         z = inputs2.itemById('Z').value
-        #q = inputs2.itemById('DropDownCommandInput7').selectedItem.name
-        anchoeng = inputs2.itemById('RackThickness_mm').value
-        m=inputs2.itemById('Module').value*10
-        #a = str(q[0:len(q) - 3])
-        #m = float(a)
+
+        standard = inputs2.itemById('standard').selectedItem.name
+        if standard == 'Metric':
+            m=inputs2.itemById('Module').value*10
+            anchoeng=inputs2.itemById('RackThickness_mm').value
+            altura = inputs2.itemById('RackHeight_mm').value
+        elif standard == 'English':
+            m=25.4/(inputs2.itemById('Pitch').value/2.54)
+            anchoeng=inputs2.itemById('RackThickness_in').value
+            altura = inputs2.itemById('RackHeight_in').value
+
         ap = inputs2.itemById('PressureAngle').value
         ah = inputs2.itemById('HelixAngle').value
-        altura = inputs2.itemById('RackHeight_mm').value
         T = mt.pi * m / 2
         h = 2.25 * m
         pitch = (mt.pi * m / 10)
@@ -2394,10 +2573,13 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             aaok=inputs2.itemById('FastCompute').value
             z=inputs2.itemById('ZWheel').value
             z2=inputs2.itemById('ZPinion').value
-            m=inputs2.itemById('Module').value*10
-            # q=inputs2.itemById('DropDownCommandInput8').selectedItem.name
-            # a=str(q[0:len(q)-3])
-            # m=float(a)
+            
+            standard = inputs2.itemById('standard').selectedItem.name
+            if standard == 'Metric':
+                m=inputs2.itemById('Module').value*10
+            elif standard == 'English':
+                m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                
             ap=inputs2.itemById('PressureAngle').value
             list3=parameters(m,z,ap,0,1,False,0,aaok)
             rf=list3[0]
@@ -2478,11 +2660,15 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('FastCompute').value
             z=inputs2.itemById('Z').value
-            # q=inputs2.itemById('DropDownCommandInput9').selectedItem.name
-            anchoeng=inputs2.itemById('GearHeight_mm').value
-            m=inputs2.itemById('Module').value*10
-            # a=str(q[0:len(q)-3])
-            # m=float(a)
+            
+            standard = inputs2.itemById('standard').selectedItem.name
+            if standard == 'Metric':
+                m=inputs2.itemById('Module').value*10
+                anchoeng=inputs2.itemById('GearHeight_mm').value
+            elif standard == 'English':
+                m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                anchoeng=inputs2.itemById('GearHeight_in').value
+
             ap=inputs2.itemById('PressureAngle').value
             X=inputs2.itemById('X').value
             if abs(X)==0:
@@ -2547,11 +2733,15 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         if vul2==True:
             mult1=2
         z=inputs2.itemById('Z').value
-        # q=inputs2.itemById('DropDownCommandInput10').selectedItem.name
-        anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
-        m=inputs2.itemById('Module').value*10
-        # a=str(q[0:len(q)-3])
-        # m=float(a)
+        
+        standard = inputs2.itemById('standard').selectedItem.name
+        if standard == 'Metric':
+            m=inputs2.itemById('Module').value*10
+            anchoeng=inputs2.itemById('GearHeight_mm').value
+        elif standard == 'English':
+            m=25.4/(inputs2.itemById('Pitch').value/2.54)
+            anchoeng=inputs2.itemById('GearHeight_in').value
+
         ap=inputs2.itemById('PressureAngle').value
         ah=inputs2.itemById('HelixAngle').value
         X=inputs2.itemById('X').value
