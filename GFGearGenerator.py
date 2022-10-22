@@ -1506,17 +1506,17 @@ def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,
     design = app.activeProduct
     rootComp = newComp
     # hacer un sketch
-    cadena="FC=" + str(Fc) + " m=" + str(modulo) + " PA=" + str(radToDeg(ap)) + "°" + " z=" + str(z)
+    cadena="FC=" + str(Fc) + str(modulo) + " PA=" + str(radToDeg(ap)) + "°" + " z=" + str(z)
     if escorona==True and eshelicoidal==False:
-        cadena=cadena + "\n" + "Radial Thickness=" + str(espesorc) + "mm"
+        cadena=cadena + "\n" + "Radial Thickness=" + str(espesorc)
     if eshelicoidal==True and escorona==False:
         cadena=cadena + " HA=" + str(round(radToDeg(ah),1)) + "°"
     if eshelicoidal == True and escorona == True:
-        cadena = cadena  + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "Radial Thickness=" + str(espesorc) + "mm"
+        cadena = cadena  + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "Radial Thickness=" + str(espesorc)
     if esconico==True:
         cadena=cadena + "\n" + "z2=" + str(z2)
     if esgusano==True:
-        cadena=cadena + "\n" + " Screw Radius=" + str(radiotornillo) + "mm"
+        cadena=cadena + "\n" + " Screw Radius=" + str(radiotornillo)
     if esPS==True and eshelicoidal==False:
         cadena= cadena + "\n" + "X=" + str(X)
     if esPS==True and eshelicoidal==True:
@@ -2249,9 +2249,11 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             # Fusion's default units are cm, since you're using mm you'll have to multiply the value per 20
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
+                textmodule = "m= "+ inputs2.itemById('Module').expression
                 anchoeng=inputs2.itemById('GearHeight_mm').value
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                textmodule = "p= "+ inputs2.itemById('Pitch').expression
                 anchoeng=inputs2.itemById('GearHeight_in').value
 
             ap=inputs2.itemById('PressureAngle').value
@@ -2264,7 +2266,7 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             hb=hidebodies(newComp)
             planetgearsdr(m,z,ap,aaok,anchoeng,newComp)
             showhiddenbodies(hb, newComp)
-            fichatecnica(aaok,False,False,False,False,False, m,ap,z,0,0,0,0,0,newComp)
+            fichatecnica(aaok,False,False,False,False,False, textmodule,ap,z,0,0,0,0,0,newComp)
             htl(8)
             # nummerop=5
 
@@ -2297,19 +2299,23 @@ class cmdDef2OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             standard = inputs2.itemById('standard').selectedItem.name
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
+                textmodule = "m= "+ inputs2.itemById('Module').expression
                 anchoeng=inputs2.itemById('GearHeight_mm').value
                 espesorc=inputs2.itemById('RadialThickness_mm').value*10
+                textthickness = inputs2.itemById('RadialThickness_mm').expression
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                textmodule = "p= "+ inputs2.itemById('Pitch').expression
                 anchoeng=inputs2.itemById('GearHeight_in').value
                 espesorc=inputs2.itemById('RadialThickness_in').value*10
+                textthickness = inputs2.itemById('RadialThickness_in').expression
 
             ap=inputs2.itemById('PressureAngle').value
         
             hb=hidebodies(newComp)
             coronastd(aaok,z,m,ap,anchoeng,espesorc,newComp)
             showhiddenbodies(hb,newComp)
-            fichatecnica(aaok,True,False,False,False,False,m,ap,z,0,espesorc,0,0,0,newComp)
+            fichatecnica(aaok,True,False,False,False,False,textmodule,ap,z,0,textthickness,0,0,0,newComp)
             #numerop=5
             htl(7)
         except:
@@ -2343,12 +2349,16 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             standard = inputs2.itemById('standard').selectedItem.name
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
+                textmodule = "m= "+ inputs2.itemById('Module').expression
                 anchoeng=inputs2.itemById('GearHeight_mm').value
                 espesorc=inputs2.itemById('RadialThickness_mm').value*10
+                textthickness = inputs2.itemById('RadialThickness_mm').expression
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                textmodule = "p= "+ inputs2.itemById('Pitch').expression
                 anchoeng=inputs2.itemById('GearHeight_in').value
                 espesorc=inputs2.itemById('RadialThickness_in').value*10
+                textthickness = inputs2.itemById('RadialThickness_in').expression
 
             ap=inputs2.itemById('PressureAngle').value
             hb=hidebodies(newComp)
@@ -2356,10 +2366,10 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             showhiddenbodies(hb,newComp)
             #numerop=7
             if (m*z/2+m + espesorc) < (m*z/2-1.25*m + m*z/2+m):
-                fichatecnica(aaok, True, False, False, False, False, m, ap, z, 0, espesorc, 0, 0, 0,newComp)
+                fichatecnica(aaok, True, False, False, False, False, textmodule, ap, z, 0, textthickness, 0, 0, 0,newComp)
                 htl(11)
             else:
-                fichatecnica(aaok, True, False, False, False, False, m, ap, z, 0, espesorc, 0, 0, 0,newComp)
+                fichatecnica(aaok, True, False, False, False, False, textmodule, ap, z, 0, textthickness, 0, 0, 0,newComp)
                 htl(9)
         except:
             if ui:
@@ -2390,9 +2400,11 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             standard = inputs2.itemById('standard').selectedItem.name
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
+                textmodule = "m= "+ inputs2.itemById('Module').expression
                 anchoeng=inputs2.itemById('GearHeight_mm').value
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
+                textmodule = "p= "+ inputs2.itemById('Pitch').expression
                 anchoeng=inputs2.itemById('GearHeight_in').value
             
             ap=inputs2.itemById('PressureAngle').value
@@ -2407,10 +2419,10 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             showhiddenbodies(hb,newComp)
             #numerop hsimple=5
             if vul2==True:
-                fichatecnica(aaok,False,True,False,False,False, m,ap,z,ah,0,0,0,0,newComp)
+                fichatecnica(aaok,False,True,False,False,False, textmodule,ap,z,ah,0,0,0,0,newComp)
                 htl(11)
             else:
-                fichatecnica(aaok, False, True, False, False, False, m, ap, z, ah, 0, 0, 0, 0,newComp)
+                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp)
                 htl(8)
         except:
             if ui:
@@ -2445,12 +2457,16 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         standard = inputs2.itemById('standard').selectedItem.name
         if standard == 'Metric':
             m=inputs2.itemById('Module').value*10
+            textmodule = "m= "+ inputs2.itemById('Module').expression
             anchoeng=inputs2.itemById('GearHeight_mm').value
             espesorc=inputs2.itemById('RadialThickness_mm').value*10
+            textthickness = inputs2.itemById('RadialThickness_mm').expression
         elif standard == 'English':
             m=25.4/(inputs2.itemById('Pitch').value/2.54)
+            textmodule = "p= "+ inputs2.itemById('Pitch').expression
             anchoeng=inputs2.itemById('GearHeight_in').value
             espesorc=inputs2.itemById('RadialThickness_in').value*10
+            textthickness = inputs2.itemById('RadialThickness_in').expression
 
         ap=inputs2.itemById('PressureAngle').value
         ah=inputs2.itemById('HelixAngle').value
@@ -2464,10 +2480,10 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             else:
                 num=0
             if vul2 == True:
-                fichatecnica(aaok,True,True,False,False,False,m,ap,z,ah,espesorc,0,0,0,newComp)
+                fichatecnica(aaok,True,True,False,False,False,textmodule,ap,z,ah,textthickness,0,0,0,newComp)
                 htl(12+num)
             else:
-                fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0, newComp)
+                fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
                 htl(9+num)
         except:
             if ui:
@@ -2505,10 +2521,18 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 m=inputs2.itemById('Module').value*10
                 anchoeng=inputs2.itemById('GearHeight_mm').value
                 espesorc=inputs2.itemById('RadialThickness_mm').value*10
+
+                # Text expressions
+                textmodule = "m= "+ inputs2.itemById('Module').expression
+                textthickness = inputs2.itemById('RadialThickness_mm').expression
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
                 anchoeng=inputs2.itemById('GearHeight_in').value
                 espesorc=inputs2.itemById('RadialThickness_in').value*10
+
+                # Text expressions
+                textmodule = "p= "+ inputs2.itemById('Pitch').expression
+                textthickness = inputs2.itemById('RadialThickness_in').expression
 
             ap=inputs2.itemById('PressureAngle').value
             ah=inputs2.itemById('HelixAngle').value
@@ -2518,10 +2542,10 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 #numerop simple=5
                 #numerop doble=8
                 if vul2 == True:
-                    fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0, newComp)
+                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
                     htl(10)
                 else:
-                    fichatecnica(aaok, True, True, False, False, False, m, ap, z, ah, espesorc, 0, 0, 0, newComp)
+                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
                     htl(7)
             except:
                 if ui:
@@ -2558,10 +2582,17 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             m=inputs2.itemById('Module').value*10
             anchoeng=inputs2.itemById('RackThickness_mm').value
             altura = inputs2.itemById('RackHeight_mm').value
+
+            # Text expressions
+            textmodule = "m= "+ inputs2.itemById('Module').expression
+
         elif standard == 'English':
             m=25.4/(inputs2.itemById('Pitch').value/2.54)
             anchoeng=inputs2.itemById('RackThickness_in').value
             altura = inputs2.itemById('RackHeight_in').value
+
+            # Text expressions
+            textmodule = "p= "+ inputs2.itemById('Pitch').expression
 
         ap = inputs2.itemById('PressureAngle').value
         ah = inputs2.itemById('HelixAngle').value
@@ -2609,10 +2640,10 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             else:
                 eshelicoidal = False
             if crema[4]>0:
-                fichatecnica(True,False,eshelicoidal,False,False,False,m,ap,z,ah,0,0,0,0,newComp)
+                fichatecnica(True,False,eshelicoidal,False,False,False,textmodule,ap,z,ah,0,0,0,0,newComp)
                 htl(12)
             else:
-                fichatecnica(True, False, eshelicoidal, False, False, False, m, ap, z, ah, 0, 0, 0, 0,newComp)
+                fichatecnica(True, False, eshelicoidal, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp)
                 htl(8)
             showhiddenbodies(hb2,newComp)
         except:
@@ -2650,8 +2681,15 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             standard = inputs2.itemById('standard').selectedItem.name
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
+
+                # Text expressions
+                textmodule = "m= "+ inputs2.itemById('Module').expression
+
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
+
+                # Text expressions
+                textmodule = "p= "+ inputs2.itemById('Pitch').expression
                 
             ap=inputs2.itemById('PressureAngle').value
             list3=parameters(m,z,ap,0,1,False,0,aaok)
@@ -2705,7 +2743,7 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             rev(s4[7],s4[6], newComp2,'Cut')
             rev(s4[8],s4[6], newComp2, 'Cut')
             rotcon(rf4,aconico4, occ2)
-            fichatecnica(aaok,False,False,True,False,False,m,ap,z,0,0,z2,0,0, newComp2)
+            fichatecnica(aaok,False,False,True,False,False,textmodule,ap,z,0,0,z2,0,0, newComp2)
             htl(21)
         except:
             if ui:
@@ -2738,9 +2776,16 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
                 anchoeng=inputs2.itemById('GearHeight_mm').value
+
+                # Text expressions
+                textmodule = "m= "+ inputs2.itemById('Module').expression
+
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
                 anchoeng=inputs2.itemById('GearHeight_in').value
+
+                # Text expressions
+                textmodule = "p= "+ inputs2.itemById('Pitch').expression
 
             ap=inputs2.itemById('PressureAngle').value
             X=inputs2.itemById('X').value
@@ -2761,7 +2806,7 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             rb=list3[27]
             if abs(X)==0:
                 planetgearsdr(m,z,ap,aaok,anchoeng, newComp)
-                fichatecnica(aaok,False,False,False,False,False,m,ap,z,0,0,0,0,0, newComp)
+                fichatecnica(aaok,False,False,False,False,False,textmodule,ap,z,0,0,0,0,0, newComp)
                 #numerop = spurgi
                 htl(8)
             else:
@@ -2776,7 +2821,7 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 porf=sk.profiles.item(0)
                 extruir(porf,anchoeng, newComp, 'Join')
                 #numerop=7
-                fichatecnica(aaok,False,False,False,False,True,m,ap,z,0,0,0,0,X, newComp)
+                fichatecnica(aaok,False,False,False,False,True,textmodule,ap,z,0,0,0,0,X, newComp)
                 htl(9)
         except:
             if ui:
@@ -2811,9 +2856,16 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         if standard == 'Metric':
             m=inputs2.itemById('Module').value*10
             anchoeng=inputs2.itemById('GearHeight_mm').value
+
+            # Text expressions
+            textmodule = "m= "+ inputs2.itemById('Module').expression
+
         elif standard == 'English':
             m=25.4/(inputs2.itemById('Pitch').value/2.54)
             anchoeng=inputs2.itemById('GearHeight_in').value
+
+            # Text expressions
+            textmodule = "p= "+ inputs2.itemById('Pitch').expression
 
         ap=inputs2.itemById('PressureAngle').value
         ah=inputs2.itemById('HelixAngle').value
@@ -2839,10 +2891,10 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         if abs(X)==0:
             helicalgs(aaok, vul, vul2, z, anchoeng, m, ap, ah, newComp)
             if vul2:
-                fichatecnica(aaok,False,True,False,False,False,m,ap,z,ah,0,0,0,0, newComp)
+                fichatecnica(aaok,False,True,False,False,False,textmodule,ap,z,ah,0,0,0,0, newComp)
                 htl(11)
             else:
-                fichatecnica(aaok, False, True, False, False, False, m, ap, z, ah, 0, 0, 0, 0, newComp)
+                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0, newComp)
                 htl(8)
         else:
             prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X, newComp)
@@ -2859,7 +2911,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                     sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
                     porf = sk.profiles.item(0)
                     extruir(porf,2*anchoeng, newComp, 'Join')
-                    fichatecnica(aaok, False, True, False, False, True, m, ap, z, ah, 0, 0, 0, X, newComp)
+                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp)
                     htl(12)
                 else:
                     sk = newComp.sketches.add(newComp.xYConstructionPlane)
@@ -2867,7 +2919,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                     sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
                     porf = sk.profiles.item(0)
                     extruir(porf, anchoeng, newComp, 'Join')
-                    fichatecnica(aaok, False, True, False, False, True, m, ap, z, ah, 0, 0, 0, X, newComp)
+                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp)
                     htl(9)
             except:
                 if ui:
@@ -2906,11 +2958,20 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 anchoeng = inputs2.itemById('WormGearHeight_mm').value/mult1
                 largotornillo = inputs2.itemById('WormLength_mm').value*10
                 radio=inputs2.itemById('WormDriveRadius_mm').value
+
+                # Text expressions
+                textmodule = "m= "+ inputs2.itemById('Module').expression
+                textradius = inputs2.itemById('WormDriveRadius_mm').expression
+
             elif standard == 'English':
                 m = 25.4/(inputs2.itemById('Pitch').value/2.54)
                 anchoeng = inputs2.itemById('WormGearHeight_in').value/mult1
                 largotornillo = inputs2.itemById('WormLength_in').value*10
                 radio=inputs2.itemById('WormDriveRadius_in').value
+
+                # Text expressions
+                textmodule = "p= "+ inputs2.itemById('Pitch').expression
+                textradius = inputs2.itemById('WormDriveRadius_in').expression
 
             ap=inputs2.itemById('PressureAngle').value
             tipo=inputs2.itemById('WormGear_Type').selectedItem.name
@@ -2929,7 +2990,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 moveLastComponentBody(-worm[4]/20,((10*radio+4.5*m+(m*z/2+m))/10),(10*radio)/10, newComp)
                 heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp)
                 showhiddenbodies(hb2, newComp)
-                fichatecnica(aaok,False,True,False,True,False,m,ap,z,worm[3],0,0,radio,0, newComp)
+                fichatecnica(aaok,False,True,False,True,False,textmodule,ap,z,worm[3],0,0,textradius,0, newComp)
                 htl(24)
 
             elif tipo=='Hobbed Straight':
@@ -2956,7 +3017,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 indcpattern(feature2, linecenter, z, newComp)
                 moveLastComponentBody(-posx,posy/10,anchoeng/2, newComp)
                 showhiddenbodies(hb2, newComp)
-                fichatecnica(aaok, False, True, False, True, False, m, ap, z, worm[3], 0, 0, radio, 0, newComp)
+                fichatecnica(aaok, False, True, False, True, False, textmodule, ap, z, worm[3], 0, 0, textradius, 0, newComp)
                 htl(29)
         except:
             if ui:
