@@ -1506,7 +1506,7 @@ def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,
     design = app.activeProduct
     rootComp = newComp
     # hacer un sketch
-    cadena="FC=" + str(Fc) + str(modulo) + " PA=" + str(radToDeg(ap)) + "°" + " z=" + str(z)
+    cadena="FC=" + str(Fc) + " " + str(modulo) + " PA=" + str(radToDeg(ap)) + "°" + " z=" + str(z)
     if escorona==True and eshelicoidal==False:
         cadena=cadena + "\n" + "Radial Thickness=" + str(espesorc)
     if eshelicoidal==True and escorona==False:
