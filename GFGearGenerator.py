@@ -2413,11 +2413,11 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
                 textmodule = "m= "+ inputs2.itemById('Module').expression
-                anchoeng=inputs2.itemById('GearHeight_mm').value
+                anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
                 textmodule = "p= "+ inputs2.itemById('Pitch').expression
-                anchoeng=inputs2.itemById('GearHeight_in').value
+                anchoeng=inputs2.itemById('GearHeight_in').value/mult1
             
             ap=inputs2.itemById('PressureAngle').value
             ah=inputs2.itemById('HelixAngle').value
@@ -2431,6 +2431,7 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             showhiddenbodies(hb,newComp)
             #numerop hsimple=5
             if vul2==True:
+                newComp.isConstructionFolderLightBulbOn = False
                 fichatecnica(aaok,False,True,False,False,False, textmodule,ap,z,ah,0,0,0,0,newComp)
                 htl(11)
             else:
@@ -2470,13 +2471,13 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         if standard == 'Metric':
             m=inputs2.itemById('Module').value*10
             textmodule = "m= "+ inputs2.itemById('Module').expression
-            anchoeng=inputs2.itemById('GearHeight_mm').value
+            anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
             espesorc=inputs2.itemById('RadialThickness_mm').value*10
             textthickness = inputs2.itemById('RadialThickness_mm').expression
         elif standard == 'English':
             m=25.4/(inputs2.itemById('Pitch').value/2.54)
             textmodule = "p= "+ inputs2.itemById('Pitch').expression
-            anchoeng=inputs2.itemById('GearHeight_in').value
+            anchoeng=inputs2.itemById('GearHeight_in').value/mult1
             espesorc=inputs2.itemById('RadialThickness_in').value*10
             textthickness = inputs2.itemById('RadialThickness_in').expression
 
@@ -2492,6 +2493,7 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             else:
                 num=0
             if vul2 == True:
+                newComp.isConstructionFolderLightBulbOn = False
                 fichatecnica(aaok,True,True,False,False,False,textmodule,ap,z,ah,textthickness,0,0,0,newComp)
                 htl(12+num)
             else:
@@ -2531,7 +2533,7 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             standard = inputs2.itemById('standard').selectedItem.name
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
-                anchoeng=inputs2.itemById('GearHeight_mm').value
+                anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
                 espesorc=inputs2.itemById('RadialThickness_mm').value*10
 
                 # Text expressions
@@ -2539,7 +2541,7 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 textthickness = inputs2.itemById('RadialThickness_mm').expression
             elif standard == 'English':
                 m=25.4/(inputs2.itemById('Pitch').value/2.54)
-                anchoeng=inputs2.itemById('GearHeight_in').value
+                anchoeng=inputs2.itemById('GearHeight_in').value/mult1
                 espesorc=inputs2.itemById('RadialThickness_in').value*10
 
                 # Text expressions
@@ -2554,6 +2556,7 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 #numerop simple=5
                 #numerop doble=8
                 if vul2 == True:
+                    newComp.isConstructionFolderLightBulbOn = False
                     fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
                     htl(10)
                 else:
@@ -2867,14 +2870,14 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         standard = inputs2.itemById('standard').selectedItem.name
         if standard == 'Metric':
             m=inputs2.itemById('Module').value*10
-            anchoeng=inputs2.itemById('GearHeight_mm').value
+            anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
 
             # Text expressions
             textmodule = "m= "+ inputs2.itemById('Module').expression
 
         elif standard == 'English':
             m=25.4/(inputs2.itemById('Pitch').value/2.54)
-            anchoeng=inputs2.itemById('GearHeight_in').value
+            anchoeng=inputs2.itemById('GearHeight_in').value/mult1
 
             # Text expressions
             textmodule = "p= "+ inputs2.itemById('Pitch').expression
@@ -2903,6 +2906,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         if abs(X)==0:
             helicalgs(aaok, vul, vul2, z, anchoeng, m, ap, ah, newComp)
             if vul2:
+                newComp.isConstructionFolderLightBulbOn = False
                 fichatecnica(aaok,False,True,False,False,False,textmodule,ap,z,ah,0,0,0,0, newComp)
                 htl(11)
             else:
@@ -2923,6 +2927,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                     sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
                     porf = sk.profiles.item(0)
                     extruir(porf,2*anchoeng, newComp, 'Join')
+                    newComp.isConstructionFolderLightBulbOn = False
                     fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp)
                     htl(12)
                 else:
