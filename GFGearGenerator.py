@@ -1560,6 +1560,8 @@ class cmdDefPressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
+
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -1643,6 +1645,7 @@ class cmdDef2PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui = app.userInterface
         cmd = args.command
         inputs = cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -1682,6 +1685,7 @@ class cmdDef3PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui = app.userInterface
         cmd = args.command
         inputs = cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -1770,6 +1774,7 @@ class cmdDef4PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -1810,6 +1815,7 @@ class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -1853,6 +1859,7 @@ class cmdDef6PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -1896,6 +1903,7 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -1984,6 +1992,7 @@ class cmdDef8PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -2051,6 +2060,7 @@ class cmdDef9PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -2088,6 +2098,7 @@ class cmdDef10PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
@@ -2128,6 +2139,7 @@ class cmdDef11PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         ui=app.userInterface
         cmd=args.command
         inputs=cmd.commandInputs
+        cmd.isExecutedWhenPreEmpted = False
 
         # Standard dropdown menu
         standard = inputs.addDropDownCommandInput('standard', 'Standard', adsk.core.DropDownStyles.TextListDropDownStyle)
