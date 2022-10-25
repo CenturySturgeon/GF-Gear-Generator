@@ -2731,6 +2731,8 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             rev(s[7], s[6], newComp, 'Cut')
             rev(s[8], s[6], newComp,'Cut')
             rotcon(rf,aconico, occ)
+            # save rotation of component
+            design.snapshots.add()
 
             list4=parameters(m,z2,ap,0,1,False,0,aaok)
             rf4=list4[0]
@@ -2744,6 +2746,8 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             rp4=m*z/2
 
             moveocc((ra4+5+ra)/10,0,0, occ)
+            # save movement of component
+            design.snapshots.add()
 
             occ2 = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
             newComp2 = occ2.component
@@ -2760,8 +2764,10 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             rev(s4[7],s4[6], newComp2,'Cut')
             rev(s4[8],s4[6], newComp2, 'Cut')
             rotcon(rf4,aconico4, occ2)
+            # save rotation of component
+            design.snapshots.add()
             fichatecnica(aaok,False,False,True,False,False,textmodule,ap,z,0,0,z2,0,0, newComp2)
-            htl(21)
+            htl(24)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
