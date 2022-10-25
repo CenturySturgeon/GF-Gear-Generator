@@ -1027,6 +1027,7 @@ def coronasnostd(aaok,z,m,anchoeng,ap,espesorc,newComp,occ):
     if (ra + espesorc) < (rf + ra):
         excesscut(ra, rf, espesorc, anchoeng, newComp)
     moveocc(-(rf+ra)/10,0,0,occ)
+    design.snapshots.add()
     #movebody((-m*z)/10,0,0)
 
 def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp):
@@ -1134,6 +1135,7 @@ def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ):
     if (ra + espesorc) < (rf + ra):
         excesscut(ra, rf, espesorc, anchoeng,newComp)
     moveocc(-(rf+ra)/10,0,0,occ)
+    design.snapshots.add()
     if rootComp.constructionPlanes.isValid==True:
         planos=rootComp.constructionPlanes
         planos.item(0).isVisible=False
@@ -2379,10 +2381,10 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             #numerop=7
             if (m*z/2+m + espesorc) < (m*z/2-1.25*m + m*z/2+m):
                 fichatecnica(aaok, True, False, False, False, False, textmodule, ap, z, 0, textthickness, 0, 0, 0,newComp)
-                htl(11)
+                htl(12)
             else:
                 fichatecnica(aaok, True, False, False, False, False, textmodule, ap, z, 0, textthickness, 0, 0, 0,newComp)
-                htl(9)
+                htl(10)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2495,10 +2497,10 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if vul2 == True:
                 newComp.isConstructionFolderLightBulbOn = False
                 fichatecnica(aaok,True,True,False,False,False,textmodule,ap,z,ah,textthickness,0,0,0,newComp)
-                htl(12+num)
+                htl(13+num)
             else:
                 fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
-                htl(9+num)
+                htl(10+num)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
