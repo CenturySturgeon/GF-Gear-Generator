@@ -1,4 +1,4 @@
-#Author-Juan Miguel Gras Olea
+#Authors-Juan Gras, Michael Truell, Aman Sanger
 #Gear Generator for basic high quality gears
 import adsk.core, adsk.fusion, adsk.cam, traceback
 import math as mt
