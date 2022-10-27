@@ -1109,7 +1109,7 @@ def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp, heli
         #planos.item(0).isVisible = False
 
 
-def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ):
+def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ, helicalSystem):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
@@ -1117,7 +1117,7 @@ def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ):
     mult1 = 1
     if dh == True:
         mult1 = 2
-    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok)
+    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok, helicalSystem)
     rf = list3[0]
     x = list3[1]
     y = list3[2]
@@ -1841,6 +1841,11 @@ class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('English', False)
 
         aaok5=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
@@ -2497,6 +2502,7 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         z=inputs2.itemById('Z').value
        
         standard = inputs2.itemById('standard').selectedItem.name
+        helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
         if standard == 'Metric':
             m=inputs2.itemById('Module').value*10
             textmodule = "m= "+ inputs2.itemById('Module').expression
@@ -2514,7 +2520,7 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         ah=inputs2.itemById('HelixAngle').value
         hb=hidebodies(newComp)
         try:
-            coronashelnostdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp, occ)
+            coronashelnostdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp, occ, bool(helicalSystem))
             #numeropsimple= 8
             #numerop doble=11
             if (m*z/2+m + espesorc) < (m*z/2-1.25*m + m*z/2+m):
