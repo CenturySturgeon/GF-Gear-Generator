@@ -1041,13 +1041,13 @@ def coronasnostd(aaok,z,m,anchoeng,ap,espesorc,newComp,occ):
     design.snapshots.add()
     #movebody((-m*z)/10,0,0)
 
-def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp, system):
+def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp, helicalSystem):
     app = adsk.core.Application.get()
     ui  = app.userInterface
     mult1 = 1
     if dh == True:
         mult1 = 2
-    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok, system)
+    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok, helicalSystem)
     rf = list3[0]
     x = list3[1]
     y = list3[2]
@@ -1075,7 +1075,7 @@ def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp, system):
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp):
+def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp, helicalSystem):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
@@ -1083,7 +1083,7 @@ def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp):
     mult1 = 1
     if dh == True:
         mult1 = 2
-    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok)
+    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok, helicalSystem)
     rf = list3[0]
     x = list3[1]
     y = list3[2]
@@ -1885,6 +1885,11 @@ class cmdDef6PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('English', False)
 
         aaok6=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
@@ -2425,7 +2430,7 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             save_params(cmdDef4PressedEventHandler, inputs2)
 
             aaok=inputs2.itemById('FastCompute').value
-            system = inputs2.itemById('HelicalSystem').selectedItem.index
+            helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
             vul=inputs2.itemById('ClockWise').value
             vul2=inputs2.itemById('DoubleHelical').value
             mult1=1
@@ -2451,7 +2456,7 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
 
             hb=hidebodies(newComp)
-            helicalgs(aaok,vul,vul2,z,anchoeng,m,ap,ah,newComp, bool(system))
+            helicalgs(aaok,vul,vul2,z,anchoeng,m,ap,ah,newComp, bool(helicalSystem))
             showhiddenbodies(hb,newComp)
             #numerop hsimple=5
             if vul2==True:
@@ -2555,6 +2560,7 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             z=inputs2.itemById('Z').value
             
             standard = inputs2.itemById('standard').selectedItem.name
+            helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
                 anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
@@ -2576,7 +2582,7 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             ah=inputs2.itemById('HelixAngle').value
             hb=hidebodies(newComp)
             try:
-                coronashelstdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp)
+                coronashelstdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp, helicalSystem)
                 #numerop simple=5
                 #numerop doble=8
                 if vul2 == True:
