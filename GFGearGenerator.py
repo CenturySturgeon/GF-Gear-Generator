@@ -1513,7 +1513,7 @@ def cremspatt(body,path,z,paso,newComp):
     patternInput = pathpattern.createInput(inputentites, path, quantity, p, 1)
     pathpattern.add(patternInput)
 
-def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,espesorc,z2,radiotornillo,X,newComp):
+def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,espesorc,z2,radiotornillo,X,newComp, normal_system=False):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
@@ -1523,9 +1523,15 @@ def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,
     if escorona==True and eshelicoidal==False:
         cadena=cadena + "\n" + "Radial Thickness=" + str(espesorc)
     if eshelicoidal==True and escorona==False:
-        cadena=cadena + " HA=" + str(round(radToDeg(ah),1)) + "°"
+        helicalSystem = "Radial System, "
+        if normal_system:
+            helicalSystem = "Normal System, "
+        cadena= helicalSystem + cadena + " HA=" + str(round(radToDeg(ah),1)) + "°"
     if eshelicoidal == True and escorona == True:
-        cadena = cadena  + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "Radial Thickness=" + str(espesorc)
+        helicalSystem = "Radial System, "
+        if normal_system:
+            helicalSystem = "Normal System, "
+        cadena = helicalSystem + cadena  + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "Radial Thickness=" + str(espesorc)
     if esconico==True:
         cadena=cadena + "\n" + "z2=" + str(z2)
     if esgusano==True:
@@ -1533,7 +1539,10 @@ def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,
     if esPS==True and eshelicoidal==False:
         cadena= cadena + "\n" + "X=" + str(X)
     if esPS==True and eshelicoidal==True:
-        cadena = cadena + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "X=" + str(X)
+        helicalSystem = "Radial System, "
+        if normal_system:
+            helicalSystem = "Normal System, "
+        cadena = helicalSystem + cadena + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "X=" + str(X)
     sketch = rootComp.sketches.add(rootComp.xYConstructionPlane)
     sketchTexts = sketch.sketchTexts
     oint = adsk.core.Point3D.create(0, 0,0)
@@ -2477,10 +2486,10 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             #numerop hsimple=5
             if vul2==True:
                 newComp.isConstructionFolderLightBulbOn = False
-                fichatecnica(aaok,False,True,False,False,False, textmodule,ap,z,ah,0,0,0,0,newComp)
+                fichatecnica(aaok,False,True,False,False,False, textmodule,ap,z,ah,0,0,0,0,newComp, bool(helicalSystem))
                 htl(11)
             else:
-                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp)
+                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp, bool(helicalSystem))
                 htl(8)
         except:
             if ui:
@@ -2540,10 +2549,10 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 num=0
             if vul2 == True:
                 newComp.isConstructionFolderLightBulbOn = False
-                fichatecnica(aaok,True,True,False,False,False,textmodule,ap,z,ah,textthickness,0,0,0,newComp)
+                fichatecnica(aaok,True,True,False,False,False,textmodule,ap,z,ah,textthickness,0,0,0,newComp, bool(helicalSystem))
                 htl(13+num)
             else:
-                fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
+                fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
                 htl(10+num)
         except:
             if ui:
@@ -2604,10 +2613,10 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 #numerop doble=8
                 if vul2 == True:
                     newComp.isConstructionFolderLightBulbOn = False
-                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
+                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
                     htl(10)
                 else:
-                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
+                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
                     htl(7)
             except:
                 if ui:
@@ -2961,10 +2970,10 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             helicalgs(aaok, vul, vul2, z, anchoeng, m, ap, ah, newComp, bool(helicalSystem))
             if vul2:
                 newComp.isConstructionFolderLightBulbOn = False
-                fichatecnica(aaok,False,True,False,False,False,textmodule,ap,z,ah,0,0,0,0, newComp)
+                fichatecnica(aaok,False,True,False,False,False,textmodule,ap,z,ah,0,0,0,0, newComp, bool(helicalSystem))
                 htl(11)
             else:
-                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0, newComp)
+                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0, newComp, bool(helicalSystem))
                 htl(8)
         else:
             prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,ah,X, newComp, bool(helicalSystem))
@@ -2982,7 +2991,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                     porf = sk.profiles.item(0)
                     extruir(porf,2*anchoeng, newComp, 'Join')
                     newComp.isConstructionFolderLightBulbOn = False
-                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp)
+                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp, bool(helicalSystem))
                     htl(12)
                 else:
                     sk = newComp.sketches.add(newComp.xYConstructionPlane)
@@ -2990,7 +2999,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                     sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
                     porf = sk.profiles.item(0)
                     extruir(porf, anchoeng, newComp, 'Join')
-                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp)
+                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp, bool(helicalSystem))
                     htl(9)
             except:
                 if ui:
@@ -3062,7 +3071,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 moveLastComponentBody(-worm[4]/20,((10*radio+4.5*m+(m*z/2+m))/10),(10*radio)/10, newComp)
                 heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp, bool(helicalSystem))
                 showhiddenbodies(hb2, newComp)
-                fichatecnica(aaok,False,True,False,True,False,textmodule,ap,z,worm[3],0,0,textradius,0, newComp)
+                fichatecnica(aaok,False,True,False,True,False,textmodule,ap,z,worm[3],0,0,textradius,0, newComp, bool(helicalSystem))
                 htl(24)
 
             elif tipo=='Hobbed Straight':
@@ -3089,7 +3098,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 indcpattern(feature2, linecenter, z, newComp)
                 moveLastComponentBody(-posx,posy/10,anchoeng/2, newComp)
                 showhiddenbodies(hb2, newComp)
-                fichatecnica(aaok, False, True, False, True, False, textmodule, ap, z, worm[3], 0, 0, textradius, 0, newComp)
+                fichatecnica(aaok, False, True, False, True, False, textmodule, ap, z, worm[3], 0, 0, textradius, 0, newComp, True)
                 htl(29)
         except:
             if ui:
