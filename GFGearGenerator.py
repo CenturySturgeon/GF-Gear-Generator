@@ -28,16 +28,21 @@ def htl(numerop):
         index = 0
     tgrupos.add(index, design.timeline.count - 1)
 
-def parameters(m,z,ap,ah,anchoeng,bool,X,fastcompute):
-    dp=m*z
+def parameters(m,z,ap,ah,anchoeng,bool,X,fastcompute, normal_system=False):
+    modt = m
+    apt = ap
+    if normal_system:
+        modt = m/mt.cos(ah)
+        apt = mt.atan(mt.tan(ap)/mt.cos(ah))
+    dp=modt*z
     rp=dp/2
-    db=dp*mt.cos(ap)
+    db=dp*mt.cos(apt)
     rb=db/2
     da=dp+2*m
     ra=da/2
     df=dp-2.5*m
     rf=df/2
-    T=mt.pi*m/2
+    T=mt.pi*modt/2
     vm=X*m
     dv=dp+2*X*m
     dva=dv+2*m
@@ -45,14 +50,14 @@ def parameters(m,z,ap,ah,anchoeng,bool,X,fastcompute):
     rv=dv/2
     rva=dva/2
     rvf=dvf/2
-    alpha=((mt.sqrt((dp**2)-(db**2)))/db)-ap
+    alpha=((mt.sqrt((dp**2)-(db**2)))/db)-apt
     beta=mt.pi/(2*z)
     def inv(x):
         iv=mt.tan(x)-x
         return iv
     def Tt(d):
         at=mt.acos(rb/(d/2))
-        T1=d*((T/dp)+inv(ap)-inv(at))
+        T1=d*((T/dp)+inv(apt)-inv(at))
         Teta=T1/(d/2)
         return Teta
     if fastcompute==True:
@@ -93,7 +98,9 @@ def parameters(m,z,ap,ah,anchoeng,bool,X,fastcompute):
     if bool==True:
         vool=-1
     try:
+        #paso de la helice
         ph=mt.pi*dp*mt.cos(ah)/mt.sin(ah)
+        #angulo que va a rotar el diente relacionado al anchoeng, cuando anchoeng==ph el diente gira 360 grados sobre el plano transverso
         aph=10*anchoeng*2*mt.pi/ph
         t2=linspace(0,aph,aok)
         bb=ph/(2*mt.pi)
@@ -214,7 +221,7 @@ def skeng1(m,ap,rf,ra,x,y,x2,y2,aok,Ttda,escorona,esStdr,espesorc,newComp):
         return prof2,prof,sketch
 #skeng1 realiza el sketch base para el cilindro de extrusión y el perfil del diente
 
-def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X, newComp):
+def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap, ah, X, newComp, normal_system=False):
     try:
         app = adsk.core.Application.get()
         ui = app.userInterface
@@ -231,12 +238,16 @@ def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X, newComp):
         circles=sketch2.sketchCurves.sketchCircles
         circles1=sketch.sketchCurves.sketchCircles
 
-
-        dp = m * z
+        modt = m
+        apt = ap
+        if normal_system:
+            modt = m/mt.cos(ah)
+            apt = mt.atan(mt.tan(ap)/mt.cos(ah))
+        dp=modt*z
         dvp=dp+2*X*m
         rvf=(dvp-2.5*m)/2
-        db = dp * mt.cos(ap)
-        alpa=mt.sqrt((dp*dp)-(db*db))/db-ap
+        db = dp * mt.cos(apt)
+        alpa=mt.sqrt((dp*dp)-(db*db))/db-apt
         alpa2=mt.pi/z-(alpa+mt.pi/(2*z))
         df=dp-2.5*m
         rf=df/2
@@ -1030,13 +1041,13 @@ def coronasnostd(aaok,z,m,anchoeng,ap,espesorc,newComp,occ):
     design.snapshots.add()
     #movebody((-m*z)/10,0,0)
 
-def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp):
+def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp, helicalSystem):
     app = adsk.core.Application.get()
     ui  = app.userInterface
     mult1 = 1
     if dh == True:
         mult1 = 2
-    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok)
+    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok, helicalSystem)
     rf = list3[0]
     x = list3[1]
     y = list3[2]
@@ -1064,7 +1075,7 @@ def helicalgs(aaok,cw,dh,z,anchoeng,m,ap,ah,newComp):
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp):
+def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp, helicalSystem):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
@@ -1072,7 +1083,7 @@ def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp):
     mult1 = 1
     if dh == True:
         mult1 = 2
-    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok)
+    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok, helicalSystem)
     rf = list3[0]
     x = list3[1]
     y = list3[2]
@@ -1098,7 +1109,7 @@ def coronashelstdr(aaok, cw, dh, z, anchoeng, m, ap, espesorc, ah, newComp):
         #planos.item(0).isVisible = False
 
 
-def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ):
+def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ, helicalSystem):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
@@ -1106,7 +1117,7 @@ def coronashelnostdr(aaok,cw,dh,z,anchoeng,m,ap,espesorc,ah, newComp, occ):
     mult1 = 1
     if dh == True:
         mult1 = 2
-    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok)
+    list3 = parameters(m, z, ap, ah, 1.25 * anchoeng, cw, 0, aaok, helicalSystem)
     rf = list3[0]
     x = list3[1]
     y = list3[2]
@@ -1203,10 +1214,10 @@ def hideplanes():
     for i in range(0,cuento):
         planos.item(i).isVisible = False
 
-def heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp):
+def heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp, helicalSystem):
     app = adsk.core.Application.get()
     ui = app.userInterface
-    list3 = parameters(m, z, ap, worm[3], 1.25 * anchoeng, vul, 0, aaok)
+    list3 = parameters(m, z, ap, worm[3], 1.25 * anchoeng, vul, 0, aaok, helicalSystem)
     rf = list3[0]
     x = list3[1]
     y = list3[2]
@@ -1502,7 +1513,7 @@ def cremspatt(body,path,z,paso,newComp):
     patternInput = pathpattern.createInput(inputentites, path, quantity, p, 1)
     pathpattern.add(patternInput)
 
-def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,espesorc,z2,radiotornillo,X,newComp):
+def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,espesorc,z2,radiotornillo,X,newComp, normal_system=False):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
@@ -1512,9 +1523,15 @@ def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,
     if escorona==True and eshelicoidal==False:
         cadena=cadena + "\n" + "Radial Thickness=" + str(espesorc)
     if eshelicoidal==True and escorona==False:
-        cadena=cadena + " HA=" + str(round(radToDeg(ah),1)) + "°"
+        helicalSystem = "Radial System, "
+        if normal_system:
+            helicalSystem = "Normal System, "
+        cadena= helicalSystem + cadena + " HA=" + str(round(radToDeg(ah),1)) + "°"
     if eshelicoidal == True and escorona == True:
-        cadena = cadena  + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "Radial Thickness=" + str(espesorc)
+        helicalSystem = "Radial System, "
+        if normal_system:
+            helicalSystem = "Normal System, "
+        cadena = helicalSystem + cadena  + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "Radial Thickness=" + str(espesorc)
     if esconico==True:
         cadena=cadena + "\n" + "z2=" + str(z2)
     if esgusano==True:
@@ -1522,7 +1539,10 @@ def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,
     if esPS==True and eshelicoidal==False:
         cadena= cadena + "\n" + "X=" + str(X)
     if esPS==True and eshelicoidal==True:
-        cadena = cadena + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "X=" + str(X)
+        helicalSystem = "Radial System, "
+        if normal_system:
+            helicalSystem = "Normal System, "
+        cadena = helicalSystem + cadena + " HA=" + str(round(radToDeg(ah),1)) + "°" + "\n" + "X=" + str(X)
     sketch = rootComp.sketches.add(rootComp.xYConstructionPlane)
     sketchTexts = sketch.sketchTexts
     oint = adsk.core.Point3D.create(0, 0,0)
@@ -1784,6 +1804,11 @@ class cmdDef4PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('English', False)
 
         aaok4=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
@@ -1796,7 +1821,7 @@ class cmdDef4PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inHeight.isVisible = False
         
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
-        inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,45,0.5, get(self, 'HelixAngle', 15))
+        inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,89,0.5, get(self, 'HelixAngle', 15))
         
         # When any input changes, the following handler triggers
         onInputChanged = ExternalGear_ChangedHandler()
@@ -1825,6 +1850,11 @@ class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('English', False)
 
         aaok5=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
@@ -1841,7 +1871,7 @@ class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
         inRadialThickness.isVisible = False
         
-        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 15))
+        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 89, 0.5, get(self, 'HelixAngle', 15))
 
         # When any input changes, the following handler triggers
         onInputChanged = InternalGear_ChangedHandler()
@@ -1869,6 +1899,11 @@ class cmdDef6PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('English', False)
 
         aaok6=inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+        
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
@@ -1885,7 +1920,7 @@ class cmdDef6PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
         inRadialThickness.isVisible = False
         
-        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 15))
+        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 89, 0.5, get(self, 'HelixAngle', 15))
 
         # When any input changes, the following handler triggers
         onInputChanged = InternalGear_ChangedHandler()
@@ -1922,7 +1957,7 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         RackThickness_in.isVisible = False
 
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
-        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 0))
+        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 89, 0.5, get(self, 'HelixAngle', 0))
         inputs.addValueInput('RackHeight_mm', 'Rack height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'RackHeight_mm', 1)))
         RackHeight_in = inputs.addValueInput('RackHeight_in', 'Rack height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'RackHeight_in', .635)))
         RackHeight_in.isVisible = False
@@ -2108,6 +2143,11 @@ class cmdDef10PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('English', False)
 
         inputs.addBoolValueInput('FastCompute', 'Fast Compute', True, '', get(self, 'FastCompute', defaultfc))
+                
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+
         inputs.addBoolValueInput('ClockWise', 'Clock Wise', True, '', get(self, 'ClockWise', False))
         inputs.addBoolValueInput('DoubleHelical','Double Helical',True,'', get(self, 'DoubleHelical', False))
         inputs.addFloatSpinnerCommandInput('X','Profile shifting coef "X" [ ]','',-1,1,.01, get(self, 'X', 0))
@@ -2121,7 +2161,7 @@ class cmdDef10PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inHeight.isVisible = False
         
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
-        inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,45,0.5, get(self, 'HelixAngle', 15))
+        inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,89,0.5, get(self, 'HelixAngle', 15))
         
         # When any input changes, the following handler triggers
         onInputChanged = ExternalGear_ChangedHandler()
@@ -2152,6 +2192,11 @@ class cmdDef11PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         WormGear_Type=inputs.addButtonRowCommandInput('WormGear_Type','Worm Gear Type', False)
         WormGear_Type.listItems.add('Helical',True,'Resources/Helical')
         WormGear_Type.listItems.add('Hobbed Straight',False,'Resources/HobbedWorm')
+        WormGear_Type.tooltipDescription = "Helical: The worm wheel is a helical gear.\nHobbed Straight: The screw defines the shape of the worm wheel teeth, holding spur gear geommetry/dimmensions."
+
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
 
         #usar clock wise como rosca izquierda o derecha
         inputs.addBoolValueInput('LeftThreaded', 'Left threaded', True, '', get(self, 'LeftThreaded', False))
@@ -2235,6 +2280,12 @@ class WormGear_ChangedHandler(adsk.core.InputChangedEventHandler):
                     # Worm Drive Radius values
                     inputs2.itemById('WormDriveRadius_mm').isVisible = True
                     inputs2.itemById('WormDriveRadius_in').isVisible = False
+            elif changedInput.id == 'WormGear_Type':
+                if changedInput.selectedItem.name == 'Hobbed Straight':
+                    inputs2.itemById('HelicalSystem').isVisible = False
+                elif changedInput.selectedItem.name == 'Helical':
+                    inputs2.itemById('HelicalSystem').isVisible = True
+
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2404,6 +2455,7 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             save_params(cmdDef4PressedEventHandler, inputs2)
 
             aaok=inputs2.itemById('FastCompute').value
+            helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
             vul=inputs2.itemById('ClockWise').value
             vul2=inputs2.itemById('DoubleHelical').value
             mult1=1
@@ -2429,15 +2481,15 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
 
             hb=hidebodies(newComp)
-            helicalgs(aaok,vul,vul2,z,anchoeng,m,ap,ah,newComp)
+            helicalgs(aaok,vul,vul2,z,anchoeng,m,ap,ah,newComp, bool(helicalSystem))
             showhiddenbodies(hb,newComp)
             #numerop hsimple=5
             if vul2==True:
                 newComp.isConstructionFolderLightBulbOn = False
-                fichatecnica(aaok,False,True,False,False,False, textmodule,ap,z,ah,0,0,0,0,newComp)
+                fichatecnica(aaok,False,True,False,False,False, textmodule,ap,z,ah,0,0,0,0,newComp, bool(helicalSystem))
                 htl(11)
             else:
-                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp)
+                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp, bool(helicalSystem))
                 htl(8)
         except:
             if ui:
@@ -2470,6 +2522,7 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         z=inputs2.itemById('Z').value
        
         standard = inputs2.itemById('standard').selectedItem.name
+        helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
         if standard == 'Metric':
             m=inputs2.itemById('Module').value*10
             textmodule = "m= "+ inputs2.itemById('Module').expression
@@ -2487,7 +2540,7 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         ah=inputs2.itemById('HelixAngle').value
         hb=hidebodies(newComp)
         try:
-            coronashelnostdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp, occ)
+            coronashelnostdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp, occ, bool(helicalSystem))
             #numeropsimple= 8
             #numerop doble=11
             if (m*z/2+m + espesorc) < (m*z/2-1.25*m + m*z/2+m):
@@ -2496,10 +2549,10 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 num=0
             if vul2 == True:
                 newComp.isConstructionFolderLightBulbOn = False
-                fichatecnica(aaok,True,True,False,False,False,textmodule,ap,z,ah,textthickness,0,0,0,newComp)
+                fichatecnica(aaok,True,True,False,False,False,textmodule,ap,z,ah,textthickness,0,0,0,newComp, bool(helicalSystem))
                 htl(13+num)
             else:
-                fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
+                fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
                 htl(10+num)
         except:
             if ui:
@@ -2533,6 +2586,7 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             z=inputs2.itemById('Z').value
             
             standard = inputs2.itemById('standard').selectedItem.name
+            helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
             if standard == 'Metric':
                 m=inputs2.itemById('Module').value*10
                 anchoeng=inputs2.itemById('GearHeight_mm').value/mult1
@@ -2554,15 +2608,15 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             ah=inputs2.itemById('HelixAngle').value
             hb=hidebodies(newComp)
             try:
-                coronashelstdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp)
+                coronashelstdr(aaok,vul,vul2,z,anchoeng,m,ap,espesorc,ah, newComp, helicalSystem)
                 #numerop simple=5
                 #numerop doble=8
                 if vul2 == True:
                     newComp.isConstructionFolderLightBulbOn = False
-                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
+                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
                     htl(10)
                 else:
-                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp)
+                    fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
                     htl(7)
             except:
                 if ui:
@@ -2833,7 +2887,7 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 #numerop = spurgi
                 htl(8)
             else:
-                prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X, newComp)
+                prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap, 0, X, newComp)
                 op='Cut'
                 extruir(prof[0],anchoeng, newComp, 'NewBody')
                 diente=extruir(prof[1],anchoeng,newComp, op)
@@ -2868,6 +2922,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         save_params(cmdDef10PressedEventHandler, eventArgs.command.commandInputs)
 
         aaok=inputs2.itemById('FastCompute').value
+        helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
         vul=inputs2.itemById('ClockWise').value
         vul2=inputs2.itemById('DoubleHelical').value
         mult1=1
@@ -2895,7 +2950,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         X=inputs2.itemById('X').value
 
         hb=hidebodies(newComp)
-        list3=parameters(m, z, ap, ah,1.25*anchoeng,vul,X,aaok)
+        list3=parameters(m, z, ap, ah,1.25*anchoeng,vul,X,aaok,bool(helicalSystem))
         rf=list3[0]
         x=list3[1]
         y=list3[2]
@@ -2912,16 +2967,16 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         rvf=list3[29]
         rb=list3[27]
         if abs(X)==0:
-            helicalgs(aaok, vul, vul2, z, anchoeng, m, ap, ah, newComp)
+            helicalgs(aaok, vul, vul2, z, anchoeng, m, ap, ah, newComp, bool(helicalSystem))
             if vul2:
                 newComp.isConstructionFolderLightBulbOn = False
-                fichatecnica(aaok,False,True,False,False,False,textmodule,ap,z,ah,0,0,0,0, newComp)
+                fichatecnica(aaok,False,True,False,False,False,textmodule,ap,z,ah,0,0,0,0, newComp, bool(helicalSystem))
                 htl(11)
             else:
-                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0, newComp)
+                fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0, newComp, bool(helicalSystem))
                 htl(8)
         else:
-            prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,X, newComp)
+            prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,ah,X, newComp, bool(helicalSystem))
             op='Cut'
             esPS=True
             extruir(prof[0],anchoeng, newComp, 'NewBody')
@@ -2936,7 +2991,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                     porf = sk.profiles.item(0)
                     extruir(porf,2*anchoeng, newComp, 'Join')
                     newComp.isConstructionFolderLightBulbOn = False
-                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp)
+                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp, bool(helicalSystem))
                     htl(12)
                 else:
                     sk = newComp.sketches.add(newComp.xYConstructionPlane)
@@ -2944,7 +2999,7 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                     sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
                     porf = sk.profiles.item(0)
                     extruir(porf, anchoeng, newComp, 'Join')
-                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp)
+                    fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp, bool(helicalSystem))
                     htl(9)
             except:
                 if ui:
@@ -2970,6 +3025,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
 
         try:
             aaok=inputs2.itemById('FastCompute').value
+            helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
             vul=inputs2.itemById('LeftThreaded').value
             vul2=False
             mult1=1
@@ -3013,9 +3069,9 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 showhiddenbodies(hb, newComp)
                 hb2 = hidebodies(newComp)
                 moveLastComponentBody(-worm[4]/20,((10*radio+4.5*m+(m*z/2+m))/10),(10*radio)/10, newComp)
-                heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp)
+                heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp, bool(helicalSystem))
                 showhiddenbodies(hb2, newComp)
-                fichatecnica(aaok,False,True,False,True,False,textmodule,ap,z,worm[3],0,0,textradius,0, newComp)
+                fichatecnica(aaok,False,True,False,True,False,textmodule,ap,z,worm[3],0,0,textradius,0, newComp, bool(helicalSystem))
                 htl(24)
 
             elif tipo=='Hobbed Straight':
@@ -3042,7 +3098,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 indcpattern(feature2, linecenter, z, newComp)
                 moveLastComponentBody(-posx,posy/10,anchoeng/2, newComp)
                 showhiddenbodies(hb2, newComp)
-                fichatecnica(aaok, False, True, False, True, False, textmodule, ap, z, worm[3], 0, 0, textradius, 0, newComp)
+                fichatecnica(aaok, False, True, False, True, False, textmodule, ap, z, worm[3], 0, 0, textradius, 0, newComp, True)
                 htl(29)
         except:
             if ui:
