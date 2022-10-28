@@ -1214,10 +1214,10 @@ def hideplanes():
     for i in range(0,cuento):
         planos.item(i).isVisible = False
 
-def heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp):
+def heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp, helicalSystem):
     app = adsk.core.Application.get()
     ui = app.userInterface
-    list3 = parameters(m, z, ap, worm[3], 1.25 * anchoeng, vul, 0, aaok)
+    list3 = parameters(m, z, ap, worm[3], 1.25 * anchoeng, vul, 0, aaok, helicalSystem)
     rf = list3[0]
     x = list3[1]
     y = list3[2]
@@ -2183,6 +2183,11 @@ class cmdDef11PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         WormGear_Type=inputs.addButtonRowCommandInput('WormGear_Type','Worm Gear Type', False)
         WormGear_Type.listItems.add('Helical',True,'Resources/Helical')
         WormGear_Type.listItems.add('Hobbed Straight',False,'Resources/HobbedWorm')
+        WormGear_Type.tooltipDescription = "Helical: The worm wheel is a helical gear.\nHobbed Straight: The screw defines the shape of the worm wheel teeth, holding spur gear geommetry/dimmensions."
+
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
 
         #usar clock wise como rosca izquierda o derecha
         inputs.addBoolValueInput('LeftThreaded', 'Left threaded', True, '', get(self, 'LeftThreaded', False))
@@ -2266,6 +2271,12 @@ class WormGear_ChangedHandler(adsk.core.InputChangedEventHandler):
                     # Worm Drive Radius values
                     inputs2.itemById('WormDriveRadius_mm').isVisible = True
                     inputs2.itemById('WormDriveRadius_in').isVisible = False
+            elif changedInput.id == 'WormGear_Type':
+                if changedInput.selectedItem.name == 'Hobbed Straight':
+                    inputs2.itemById('HelicalSystem').isVisible = False
+                elif changedInput.selectedItem.name == 'Helical':
+                    inputs2.itemById('HelicalSystem').isVisible = True
+
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -3005,6 +3016,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
 
         try:
             aaok=inputs2.itemById('FastCompute').value
+            helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
             vul=inputs2.itemById('LeftThreaded').value
             vul2=False
             mult1=1
@@ -3048,7 +3060,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 showhiddenbodies(hb, newComp)
                 hb2 = hidebodies(newComp)
                 moveLastComponentBody(-worm[4]/20,((10*radio+4.5*m+(m*z/2+m))/10),(10*radio)/10, newComp)
-                heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp)
+                heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp, bool(helicalSystem))
                 showhiddenbodies(hb2, newComp)
                 fichatecnica(aaok,False,True,False,True,False,textmodule,ap,z,worm[3],0,0,textradius,0, newComp)
                 htl(24)
