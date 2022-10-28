@@ -1821,7 +1821,7 @@ class cmdDef4PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inHeight.isVisible = False
         
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
-        inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,45,0.5, get(self, 'HelixAngle', 15))
+        inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,89,0.5, get(self, 'HelixAngle', 15))
         
         # When any input changes, the following handler triggers
         onInputChanged = ExternalGear_ChangedHandler()
@@ -1871,7 +1871,7 @@ class cmdDef5PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
         inRadialThickness.isVisible = False
         
-        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 15))
+        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 89, 0.5, get(self, 'HelixAngle', 15))
 
         # When any input changes, the following handler triggers
         onInputChanged = InternalGear_ChangedHandler()
@@ -1920,7 +1920,7 @@ class cmdDef6PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inRadialThickness = inputs.addValueInput('RadialThickness_in','Radial thickness [in]','in', adsk.core.ValueInput.createByReal(get(self, 'RadialThickness_in', 0.635)))
         inRadialThickness.isVisible = False
         
-        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 15))
+        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 89, 0.5, get(self, 'HelixAngle', 15))
 
         # When any input changes, the following handler triggers
         onInputChanged = InternalGear_ChangedHandler()
@@ -1957,7 +1957,7 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         RackThickness_in.isVisible = False
 
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
-        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 45, 0.5, get(self, 'HelixAngle', 0))
+        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 89, 0.5, get(self, 'HelixAngle', 0))
         inputs.addValueInput('RackHeight_mm', 'Rack height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'RackHeight_mm', 1)))
         RackHeight_in = inputs.addValueInput('RackHeight_in', 'Rack height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'RackHeight_in', .635)))
         RackHeight_in.isVisible = False
@@ -2161,7 +2161,7 @@ class cmdDef10PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         inHeight.isVisible = False
         
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
-        inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,45,0.5, get(self, 'HelixAngle', 15))
+        inputs.addFloatSpinnerCommandInput('HelixAngle','Helix angle [°]','deg',0,89,0.5, get(self, 'HelixAngle', 15))
         
         # When any input changes, the following handler triggers
         onInputChanged = ExternalGear_ChangedHandler()
