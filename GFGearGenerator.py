@@ -772,6 +772,23 @@ def moveocc(x,y,z,occ):
     occ.transform2 = transform
 #Mueve el componente (por medio de la ocurrencia, el componente como tal no se puede mover)
 
+def moveAndRotateBevel(x,y,z,occ,aconico,rf):
+    """Function that moves and rotates a bevel gear to match its pair."""
+    app=adsk.core.Application.get()
+    ui=app.userInterface
+    design=app.activeProduct
+    rootComp=design.rootComponent
+
+    # pto1 = adsk.core.Point3D.create(x, y, z)
+    # pto2 = adsk.core.Point3D.create(x, y+10, z)
+    vec=adsk.core.Vector3D.create(0, 1, 0)
+    #vec2 = pto1.vectorTo(pto2)
+    transform=adsk.core.Matrix3D.create()
+    # transform.setToRotateTo(vec,vec2)
+    transform.setToRotation(-aconico,vec,adsk.core.Point3D.create((rf) / 10, 0, 0))
+    transform.translation=adsk.core.Vector3D.create(x,y,z)
+    occ.transform2 = transform
+
 def moveLastComponentBody(x, y, z, component):
     app=adsk.core.Application.get()
     ui=app.userInterface
@@ -2784,9 +2801,6 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             combine(z, newComp)
             rev(s[7], s[6], newComp, 'Cut')
             rev(s[8], s[6], newComp,'Cut')
-            rotcon(rf,aconico, occ)
-            # save rotation of component
-            design.snapshots.add()
 
             list4=parameters(m,z2,ap,0,1,False,0,aaok)
             rf4=list4[0]
@@ -2799,9 +2813,14 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             ra4=list4[7]
             rp4=m*z/2
 
-            moveocc((ra4+5+ra)/10,0,0, occ)
+            #rotates bevel gear to 90 deg, needs further math to correctly assemble
+            #moveAndRotateBevel(-rf*mt.cos(aconico+mt.pi/2)/10 + (ra+ra4*1)/10,0,(-rf*mt.sin(aconico+mt.pi/2)/10) + 2*(rp-1.25*m*mt.cos(aconico))/10 + 2.25*mt.cos(aconico)*m/10,occ,aconico+mt.pi/2,rf)
+            
+            moveAndRotateBevel((ra4+ra)/10+((rp-1.25*m*mt.cos(aconico))-rf*mt.cos(aconico))/10 ,0,1*(-rf*mt.sin(aconico)/10),occ,aconico,rf)
             # save movement of component
             design.snapshots.add()
+            # hide bevel gear
+            occ.component.bRepBodies.item(0).isVisible=False
 
             occ2 = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
             newComp2 = occ2.component
@@ -2822,6 +2841,9 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             design.snapshots.add()
             fichatecnica(aaok,False,False,True,False,False,textmodule,ap,z,0,0,z2,0,0, newComp2)
             htl(24)
+
+            # show bevel gear
+            occ.component.bRepBodies.item(0).isVisible=True
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
