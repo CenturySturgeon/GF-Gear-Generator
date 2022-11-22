@@ -74,6 +74,7 @@ def parameters(m,z,ap,ah,anchoeng,bool,X,fastcompute, normal_system=False):
     y=[]
     x2=[]
     y2=[]
+    
     for i in range(0,len(u)):
         x.append(rb*(mt.cos(u[i]+angrot2)+u[i]*mt.sin(u[i]+angrot2)))
         y.append(rb*(mt.sin(u[i]+angrot2)-u[i]*mt.cos(u[i]+angrot2)))
@@ -83,11 +84,22 @@ def parameters(m,z,ap,ah,anchoeng,bool,X,fastcompute, normal_system=False):
     bl=[]
     cl=[]
     dl=[]
+
+    def sigmaPS(rt,rb,ap,X):
+        alphat = mt.acos(rb / rt)
+        dt = 2 * rt
+        Tt = dt * ((mt.pi/(2*z)) + (2*X*mt.tan(ap)/(z)) + inv(ap) - inv(alphat))
+        sigm = Tt / rt
+        return sigm
+
     if X>0 or X<0:
+        angrot = 2*mt.pi- sigmaPS(rb,rb,ap,X)/2
+        u=linspace(0,mt.sqrt(((dva/db)**2)-1),aok)
+        v=linspace(0,mt.sqrt(((dva/db)**2)-1),aok)
         for i in range(0,len(u)):
-            al.append(rb*(mt.cos(u[i]+angrot)+u[i]*mt.sin(u[i]+angrot))+vm)
+            al.append(rb*(mt.cos(u[i]+angrot)+u[i]*mt.sin(u[i]+angrot))+0*vm)
             bl.append(rb*(mt.sin(u[i]+angrot)-u[i]*mt.cos(u[i]+angrot)))
-            cl.append(rb*(mt.cos(v[i]+angrot)+v[i]*mt.sin(v[i]+angrot))+vm)
+            cl.append(rb*(mt.cos(v[i]+angrot)+v[i]*mt.sin(v[i]+angrot))+0*vm)
             dl.append(-rb*(mt.sin(v[i]+angrot)-v[i]*mt.cos(v[i]+angrot)))
         x=al
         y=bl
@@ -257,7 +269,8 @@ def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap, ah, X, newComp, normal_system=False)
         coordeny=rvf*mt.sin(adesc)
         lux = adsk.core.Point3D.create(coordenx/10, coordeny/ 10, 0)
         rascahuele=adsk.core.Point3D.create(coordenx / 10, -coordeny / 10, 0)
-        sketch.sketchCurves.sketchArcs.addByCenterStartSweep(orig,rascahuele,2*adesc)
+        orig = adsk.core.Point3D.create(0, 0, 0) 
+        #sketch.sketchCurves.sketchArcs.addByCenterStartSweep(orig,rascahuele,2*adesc)
 
 
         # hacer grupos de puntos
@@ -281,14 +294,22 @@ def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap, ah, X, newComp, normal_system=False)
         # lineas para el perfil del diente
         lines = sketch.sketchCurves.sketchLines
         #lines2=sketch2.sketchCurves.sketchLines
-        line1 = lines.addByTwoPoints(lux, puntos[0])
-        line2 = lines.addByTwoPoints(rascahuele, puntos2[0])
+        line1 = lines.addByTwoPoints(orig, puntos[0])
+        line2 = lines.addByTwoPoints(orig, puntos2[0])
         # crear punto de inicio para el arco
-        pointo = adsk.core.Point3D.create(x[aok-1]/10,y[aok-1]/10, 0)
-        pointo2 = adsk.core.Point3D.create(x2[aok-1]/10,y2[aok-1]/10,0)
-        puntoarc=adsk.core.Point3D.create((rva+1)/10,0,0)
+        # pointo = adsk.core.Point3D.create(x[aok-1]/10,y[aok-1]/10, 0)
+        # pointo2 = adsk.core.Point3D.create(x2[aok-1]/10,y2[aok-1]/10,0)
+        # puntoarc=adsk.core.Point3D.create((rva+1)/10,0,0)
         # crear arco en el da
-        sketch.sketchCurves.sketchArcs.addByThreePoints(pointo2,puntoarc,pointo)
+        def sigmaPS(rt,rb,ap,X):
+            alphat = mt.acos(rb / rt)
+            dt = 2 * rt
+            Tt = dt * ((mt.pi/(2*z)) + (2*X*mt.tan(ap)/(z)) + (mt.tan(ap) - ap) - (mt.tan(alphat)-alphat))
+            sigm = Tt / rt
+            return sigm
+        pointo = adsk.core.Point3D.create(x[aok-1]/10,y[aok-1]/10,0)
+        sketch.sketchCurves.sketchArcs.addByCenterStartSweep(orig, pointo, sigmaPS(rva,rb,ap,X))
+        #sketch.sketchCurves.sketchArcs.addByThreePoints(pointo2,puntoarc,pointo)
         sketcht=rootComp.sketches.item(0)
         vec=adsk.core.Vector3D.create(0,1,0)
         vec.add(adsk.core.Vector3D.create(0,10,0))
@@ -298,7 +319,7 @@ def skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap, ah, X, newComp, normal_system=False)
         #if rb<=rvf:
             #c=1
         prof=sketch.profiles.item(0)
-        circles.addByCenterRadius(orig,rva/10)
+        circles.addByCenterRadius(orig,rvf/10)
         prof2=sketch2.profiles.item(0)
 
         return prof2,prof,sketch
@@ -771,6 +792,23 @@ def moveocc(x,y,z,occ):
     transform.translation=adsk.core.Vector3D.create(x,y,z)
     occ.transform2 = transform
 #Mueve el componente (por medio de la ocurrencia, el componente como tal no se puede mover)
+
+def moveAndRotateBevel(x,y,z,occ,aconico,rf):
+    """Function that moves and rotates a bevel gear to match its pair."""
+    app=adsk.core.Application.get()
+    ui=app.userInterface
+    design=app.activeProduct
+    rootComp=design.rootComponent
+
+    # pto1 = adsk.core.Point3D.create(x, y, z)
+    # pto2 = adsk.core.Point3D.create(x, y+10, z)
+    vec=adsk.core.Vector3D.create(0, 1, 0)
+    #vec2 = pto1.vectorTo(pto2)
+    transform=adsk.core.Matrix3D.create()
+    # transform.setToRotateTo(vec,vec2)
+    transform.setToRotation(-aconico,vec,adsk.core.Point3D.create((rf) / 10, 0, 0))
+    transform.translation=adsk.core.Vector3D.create(x,y,z)
+    occ.transform2 = transform
 
 def moveLastComponentBody(x, y, z, component):
     app=adsk.core.Application.get()
@@ -2324,7 +2362,7 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             ap=inputs2.itemById('PressureAngle').value
 
             save_params(cmdDefPressedEventHandler, inputs2)
-            
+            nuOfOps = design.timeline.count
             design = adsk.fusion.Design.cast(app.activeProduct)
             root = design.activeComponent
             newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
@@ -2332,7 +2370,7 @@ class cmdDefOKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             planetgearsdr(m,z,ap,aaok,anchoeng,newComp)
             showhiddenbodies(hb, newComp)
             fichatecnica(aaok,False,False,False,False,False, textmodule,ap,z,0,0,0,0,0,newComp)
-            htl(8)
+            htl(design.timeline.count - nuOfOps)
             # nummerop=5
 
 
@@ -2350,10 +2388,11 @@ class cmdDef2OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         ui=app.userInterface
         design = adsk.fusion.Design.cast(app.activeProduct)
         root = design.activeComponent
-        newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
         inputs2=eventArgs.command.commandInputs
 
         save_params(cmdDef2PressedEventHandler, inputs2)
+        nuOfOps = design.timeline.count
+        newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
         try:
             aaok=inputs2.itemById('FastCompute').value
             z=inputs2.itemById('Z').value
@@ -2382,7 +2421,7 @@ class cmdDef2OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             showhiddenbodies(hb,newComp)
             fichatecnica(aaok,True,False,False,False,False,textmodule,ap,z,0,textthickness,0,0,0,newComp)
             #numerop=5
-            htl(7)
+            htl(design.timeline.count - nuOfOps)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2398,12 +2437,12 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         ui=app.userInterface
         design = adsk.fusion.Design.cast(app.activeProduct)
         root = design.activeComponent
-        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
-        newComp = occ.component
         inputs2=eventArgs.command.commandInputs
         
         save_params(cmdDef3PressedEventHandler, inputs2)
-
+        nuOfOps = design.timeline.count
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
         try:
             aaok=inputs2.itemById('FastCompute').value
             z=inputs2.itemById('Z').value
@@ -2432,10 +2471,10 @@ class cmdDef3OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             #numerop=7
             if (m*z/2+m + espesorc) < (m*z/2-1.25*m + m*z/2+m):
                 fichatecnica(aaok, True, False, False, False, False, textmodule, ap, z, 0, textthickness, 0, 0, 0,newComp)
-                htl(12)
             else:
                 fichatecnica(aaok, True, False, False, False, False, textmodule, ap, z, 0, textthickness, 0, 0, 0,newComp)
-                htl(10)
+                
+            htl(design.timeline.count - nuOfOps)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2453,6 +2492,7 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             rootComp=design.rootComponent
             inputs2=eventArgs.command.commandInputs
             save_params(cmdDef4PressedEventHandler, inputs2)
+            nuOfOps = design.timeline.count
 
             aaok=inputs2.itemById('FastCompute').value
             helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
@@ -2487,10 +2527,9 @@ class cmdDef4OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if vul2==True:
                 newComp.isConstructionFolderLightBulbOn = False
                 fichatecnica(aaok,False,True,False,False,False, textmodule,ap,z,ah,0,0,0,0,newComp, bool(helicalSystem))
-                htl(11)
             else:
                 fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp, bool(helicalSystem))
-                htl(8)
+            htl(design.timeline.count - nuOfOps)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2508,10 +2547,11 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         inputs2=eventArgs.command.commandInputs
         design = adsk.fusion.Design.cast(app.activeProduct)
         root = design.activeComponent
-        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
-        newComp = occ.component
 
         save_params(cmdDef5PressedEventHandler, inputs2)
+        nuOfOps = design.timeline.count
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
 
         aaok=inputs2.itemById('FastCompute').value
         vul=inputs2.itemById('ClockWise').value
@@ -2550,10 +2590,11 @@ class cmdDef5OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if vul2 == True:
                 newComp.isConstructionFolderLightBulbOn = False
                 fichatecnica(aaok,True,True,False,False,False,textmodule,ap,z,ah,textthickness,0,0,0,newComp, bool(helicalSystem))
-                htl(13+num)
             else:
                 fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
-                htl(10+num)
+            
+            htl(design.timeline.count - nuOfOps)
+
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2571,10 +2612,11 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         inputs2=eventArgs.command.commandInputs
         design = adsk.fusion.Design.cast(app.activeProduct)
         root = design.activeComponent
+        
+        save_params(cmdDef6PressedEventHandler, inputs2)
+        nuOfOps = design.timeline.count
         occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
         newComp = occ.component
-
-        save_params(cmdDef6PressedEventHandler, inputs2)
 
         try:
             aaok=inputs2.itemById('FastCompute').value
@@ -2614,10 +2656,9 @@ class cmdDef6OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 if vul2 == True:
                     newComp.isConstructionFolderLightBulbOn = False
                     fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
-                    htl(10)
                 else:
                     fichatecnica(aaok, True, True, False, False, False, textmodule, ap, z, ah, textthickness, 0, 0, 0, newComp, bool(helicalSystem))
-                    htl(7)
+                htl(design.timeline.count - nuOfOps)
             except:
                 if ui:
                     ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2639,11 +2680,13 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         rootComp = design.rootComponent
         design = adsk.fusion.Design.cast(app.activeProduct)
         root = design.activeComponent
+        
+
+        save_params(cmdDef7PressedEventHandler, eventArgs.command.commandInputs)
+        nuOfOps = design.timeline.count
         newComp = root.occurrences.addNewComponent(adsk.core.Matrix3D.create()).component
         rootComp = newComp
 
-        save_params(cmdDef7PressedEventHandler, eventArgs.command.commandInputs)
-        
         inputs2 = eventArgs.command.commandInputs
 #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
         z = inputs2.itemById('Z').value
@@ -2712,10 +2755,9 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 eshelicoidal = False
             if crema[4]>0:
                 fichatecnica(True,False,eshelicoidal,False,False,False,textmodule,ap,z,ah,0,0,0,0,newComp)
-                htl(12)
             else:
                 fichatecnica(True, False, eshelicoidal, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp)
-                htl(8)
+            htl(design.timeline.count - nuOfOps)
             showhiddenbodies(hb2,newComp)
         except:
             if ui:
@@ -2730,6 +2772,8 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         ui = app.userInterface
         design = adsk.fusion.Design.cast(app.activeProduct)
         root = design.activeComponent
+
+        nuOfOps = design.timeline.count
         occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
         newComp = occ.component
         hb=hidebodies(newComp)
@@ -2744,6 +2788,7 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             #design = app.activeProduct
             inputs2=eventArgs.command.commandInputs
             save_params(cmdDef8PressedEventHandler, eventArgs.command.commandInputs)
+
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('FastCompute').value
             z=inputs2.itemById('ZWheel').value
@@ -2784,9 +2829,6 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             combine(z, newComp)
             rev(s[7], s[6], newComp, 'Cut')
             rev(s[8], s[6], newComp,'Cut')
-            rotcon(rf,aconico, occ)
-            # save rotation of component
-            design.snapshots.add()
 
             list4=parameters(m,z2,ap,0,1,False,0,aaok)
             rf4=list4[0]
@@ -2799,9 +2841,14 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             ra4=list4[7]
             rp4=m*z/2
 
-            moveocc((ra4+5+ra)/10,0,0, occ)
+            #rotates bevel gear to 90 deg, needs further math to correctly assemble
+            #moveAndRotateBevel(-rf*mt.cos(aconico+mt.pi/2)/10 + (ra+ra4*1)/10,0,(-rf*mt.sin(aconico+mt.pi/2)/10) + 2*(rp-1.25*m*mt.cos(aconico))/10 + 2.25*mt.cos(aconico)*m/10,occ,aconico+mt.pi/2,rf)
+            
+            moveAndRotateBevel((ra4+ra)/10+((rp-1.25*m*mt.cos(aconico))-rf*mt.cos(aconico))/10 ,0,1*(-rf*mt.sin(aconico)/10),occ,aconico,rf)
             # save movement of component
             design.snapshots.add()
+            # hide bevel gear
+            occ.component.bRepBodies.item(0).isVisible=False
 
             occ2 = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
             newComp2 = occ2.component
@@ -2821,7 +2868,9 @@ class cmdDef8OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             # save rotation of component
             design.snapshots.add()
             fichatecnica(aaok,False,False,True,False,False,textmodule,ap,z,0,0,z2,0,0, newComp2)
-            htl(24)
+            htl(design.timeline.count - nuOfOps)
+            # show bevel gear
+            occ.component.bRepBodies.item(0).isVisible=True
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2839,11 +2888,13 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             ui=app.userInterface
             design = adsk.fusion.Design.cast(app.activeProduct)
             root = design.activeComponent
-            occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
-            newComp = occ.component
             inputs2=eventArgs.command.commandInputs
 
             save_params(cmdDef9PressedEventHandler, eventArgs.command.commandInputs)
+            nuOfOps = design.timeline.count
+            occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+            newComp = occ.component
+
 
             #Recopila los valores introducidos por el usuario notese que 'a' es un string y debe eliminar la parte de mm para convertirlo a float
             aaok=inputs2.itemById('FastCompute').value
@@ -2885,21 +2936,22 @@ class cmdDef9OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 planetgearsdr(m,z,ap,aaok,anchoeng, newComp)
                 fichatecnica(aaok,False,False,False,False,False,textmodule,ap,z,0,0,0,0,0, newComp)
                 #numerop = spurgi
-                htl(8)
             else:
                 prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap, 0, X, newComp)
-                op='Cut'
+                op='NewBody'
                 extruir(prof[0],anchoeng, newComp, 'NewBody')
                 diente=extruir(prof[1],anchoeng,newComp, op)
-                cpattern(1,False,ra,rf,z,diente,True,anchoeng, newComp, 'Cut')
-                sk=newComp.sketches.add(newComp.xYConstructionPlane)
-                origen=adsk.core.Point3D.create(0,0,0)
-                sk.sketchCurves.sketchCircles.addByCenterRadius(origen,(m*z+2*X*m-2.5*m)/20)
-                porf=sk.profiles.item(0)
-                extruir(porf,anchoeng, newComp, 'Join')
+                #cpattern(1,False,ra,rf,zp1,diente[0],True,anchoeng,newComp, 'Join')
+                cpattern(1,False,ra,rf,z,diente[0],True,anchoeng, newComp, 'Join')
+                #sk=newComp.sketches.add(newComp.xYConstructionPlane)
+                #origen=adsk.core.Point3D.create(0,0,0)
+                #sk.sketchCurves.sketchCircles.addByCenterRadius(origen,(m*z+2*X*m-2.5*m)/20)
+                #porf=sk.profiles.item(0)
+                #extruir(porf,anchoeng, newComp, 'Join')
                 #numerop=7
                 fichatecnica(aaok,False,False,False,False,True,textmodule,ap,z,0,0,0,0,X, newComp)
-                htl(9)
+                combine(z, newComp)
+            htl(design.timeline.count - nuOfOps)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2915,11 +2967,12 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         ui=app.userInterface
         design = adsk.fusion.Design.cast(app.activeProduct)
         root = design.activeComponent
-        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
-        newComp = occ.component
         inputs2=eventArgs.command.commandInputs
         
         save_params(cmdDef10PressedEventHandler, eventArgs.command.commandInputs)
+        nuOfOps = design.timeline.count
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
 
         aaok=inputs2.itemById('FastCompute').value
         helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
@@ -2971,39 +3024,39 @@ class cmdDef10OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             if vul2:
                 newComp.isConstructionFolderLightBulbOn = False
                 fichatecnica(aaok,False,True,False,False,False,textmodule,ap,z,ah,0,0,0,0, newComp, bool(helicalSystem))
-                htl(11)
             else:
                 fichatecnica(aaok, False, True, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0, newComp, bool(helicalSystem))
-                htl(8)
         else:
             prof=skeng2(x,y,x2,y2,rva,rvf,aok,rb,m,z,ap,ah,X, newComp, bool(helicalSystem))
-            op='Cut'
+            op='NewBody'
             esPS=True
             extruir(prof[0],anchoeng, newComp, 'NewBody')
             try:
                 diente=helixext(esPS,rva,rvf,False,ah,prof[2],aok,xl,yl,zl,1.25*anchoeng,vul, newComp, op)
-                cpattern(1,False,ra,rf,z,diente[0],True,anchoeng, newComp, 'Cut')
+                cpattern(1,False,ra,rf,z,diente[0],True,anchoeng, newComp, 'Join')
                 if vul2==True:
+                    combine(z, newComp)
                     mirror(prof[2],anchoeng,False, newComp)
-                    sk = newComp.sketches.add(newComp.xYConstructionPlane)
-                    origen = adsk.core.Point3D.create(0, 0, 0)
-                    sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
-                    porf = sk.profiles.item(0)
-                    extruir(porf,2*anchoeng, newComp, 'Join')
+                    # sk = newComp.sketches.add(newComp.xYConstructionPlane)
+                    # origen = adsk.core.Point3D.create(0, 0, 0)
+                    # sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
+                    # porf = sk.profiles.item(0)
+                    # extruir(porf,2*anchoeng, newComp, 'Join')
                     newComp.isConstructionFolderLightBulbOn = False
                     fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp, bool(helicalSystem))
-                    htl(12)
                 else:
-                    sk = newComp.sketches.add(newComp.xYConstructionPlane)
-                    origen = adsk.core.Point3D.create(0, 0, 0)
-                    sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
-                    porf = sk.profiles.item(0)
-                    extruir(porf, anchoeng, newComp, 'Join')
+                    # sk = newComp.sketches.add(newComp.xYConstructionPlane)
+                    # origen = adsk.core.Point3D.create(0, 0, 0)
+                    # sk.sketchCurves.sketchCircles.addByCenterRadius(origen, (m * z + 2 * X * m - 2.5 * m) / 20)
+                    # porf = sk.profiles.item(0)
+                    # extruir(porf, anchoeng, newComp, 'Join')
+                    combine(z, newComp)
                     fichatecnica(aaok, False, True, False, False, True, textmodule, ap, z, ah, 0, 0, 0, X, newComp, bool(helicalSystem))
-                    htl(9)
+        
             except:
                 if ui:
                     ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+        htl(design.timeline.count - nuOfOps)
         showhiddenbodies(hb, newComp)
 # helical PS
 
@@ -3016,12 +3069,14 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         ui=app.userInterface
         design = adsk.fusion.Design.cast(app.activeProduct)
         root = design.activeComponent
-        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
-        newComp = occ.component
         #aqui me quede
         inputs2=eventArgs.command.commandInputs
 
         save_params(cmdDef11PressedEventHandler, eventArgs.command.commandInputs)
+        nuOfOps = design.timeline.count
+        occ = root.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        newComp = occ.component
+
 
         try:
             aaok=inputs2.itemById('FastCompute').value
@@ -3072,7 +3127,6 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 heliwormg(m,z,ap,worm,anchoeng,vul,vul2,aaok, newComp, bool(helicalSystem))
                 showhiddenbodies(hb2, newComp)
                 fichatecnica(aaok,False,True,False,True,False,textmodule,ap,z,worm[3],0,0,textradius,0, newComp, bool(helicalSystem))
-                htl(24)
 
             elif tipo=='Hobbed Straight':
                 hb = hidebodies(newComp)
@@ -3099,7 +3153,7 @@ class cmdDef11OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 moveLastComponentBody(-posx,posy/10,anchoeng/2, newComp)
                 showhiddenbodies(hb2, newComp)
                 fichatecnica(aaok, False, True, False, True, False, textmodule, ap, z, worm[3], 0, 0, textradius, 0, newComp, True)
-                htl(29)
+            htl(design.timeline.count - nuOfOps)
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
