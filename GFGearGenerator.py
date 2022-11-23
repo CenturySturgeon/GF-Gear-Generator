@@ -1432,7 +1432,7 @@ def indcpattern(feature,linecenter,z, newComp):
     circularFeatInput.patternComputeOption = a
     circularFeat = circularFeats.add(circularFeatInput)
 
-def cremsketch(m,z,h,ap,T,altura,anchoeng,ah,newComp):
+def cremsketch(m,z,h,ap,T, paso, altura,anchoeng,ah,newComp):
     app = adsk.core.Application.get()
     ui = app.userInterface
     design = app.activeProduct
@@ -1467,14 +1467,16 @@ def cremsketch(m,z,h,ap,T,altura,anchoeng,ah,newComp):
     prof = sketch.profiles.item(0)
 
 
-    punton=adsk.core.Point3D.create((anchoeng*mt.sin(ah)),0,anchoeng)
+    punton=adsk.core.Point3D.create((anchoeng/mt.tan((mt.pi/2)-ah)),0,anchoeng)
     pat=lines.addByTwoPoints(orig,punton)
     path=newComp.features.createPath(pat,False)
 
     lines2 = sketch2.sketchCurves.sketchLines
-    dtotal = (z - 1) * mt.pi * m + T + 2.5 * m * mt.tan(ap)+(anchoeng*mt.sin(ah))*10
+    # dtotal = (z - 1) * mt.pi * m + T + 2.5 * m * mt.tan(ap)+(anchoeng*mt.sin(ah))*10
+    dtotal = (anchoeng/mt.tan((mt.pi/2)-ah))*10+(z-1)*paso*10 + mt.tan(ap)*2.5*m + T
     dtorig= (z - 1) * mt.pi * m + T + 2.5 * m * mt.tan(ap)
-    cantidad=mt.floor((dtotal-dtorig)/((T + 2 * (1.25 * m * mt.tan(ap)))+mt.pi*m-(T + 2 * (1.25 * m * mt.tan(ap)))))
+    #cantidad=mt.floor((dtotal-dtorig)/((T + 2 * (1.25 * m * mt.tan(ap)))+mt.pi*m-(T + 2 * (1.25 * m * mt.tan(ap)))))
+    cantidad = round(( (anchoeng/mt.tan((mt.pi/2)-ah))/paso ))
 
     pt2 = adsk.core.Point3D.create(dtotal / 10, 0, 0)
     lines2.addByTwoPoints(orig, pt2)
@@ -1493,8 +1495,8 @@ def cremsketch(m,z,h,ap,T,altura,anchoeng,ah,newComp):
         lineas=sketch3.sketchCurves.sketchLines
 
         puntocortearri=adsk.core.Point3D.create(dtotal/10,2.25*m/10,0)
-        puntocortearrd=adsk.core.Point3D.create(dtotal/10+(cantidad*T + 2 * (1.25 * m * mt.tan(ap))+mt.pi*m+(anchoeng*mt.sin(ap))*10)/10,2.25*m/10,0)
-        puntocorteab=adsk.core.Point3D.create(dtotal/10+(cantidad*T + 2 * (1.25 * m * mt.tan(ap))+mt.pi*m+(anchoeng*mt.sin(ap))*10)/10,-altura,0)
+        puntocortearrd=adsk.core.Point3D.create(dtotal/10+cantidad*paso*1,2.25*m/10,0)
+        puntocorteab=adsk.core.Point3D.create(dtotal/10+cantidad*paso,-altura,0)
         lineas.addByTwoPoints(puntocortearri,puntocortearrd)
         lineas.addByTwoPoints(puntocorteab,puntocortearrd)
         lineas.addByTwoPoints(pt3,puntocorteab)
@@ -1504,8 +1506,8 @@ def cremsketch(m,z,h,ap,T,altura,anchoeng,ah,newComp):
         #aqui va el perfil de corte de la izquierda
         par=adsk.core.Point3D.create(0,2.25*m/10,0)
         pab=adsk.core.Point3D.create(0,-altura,0)
-        paiz=adsk.core.Point3D.create(-(cantidad*T + 2 * (1.25 * m * mt.tan(ap))+mt.pi*m+(anchoeng*mt.sin(ap))*10)/10,2.25*m/10,0)
-        pabiz=adsk.core.Point3D.create(-(cantidad*T + 2 * (1.25 * m * mt.tan(ap))+mt.pi*m+(anchoeng*mt.sin(ap))*10)/10,-altura,0)
+        paiz=adsk.core.Point3D.create(-(paso*cantidad*10)/10,2.25*m/10,0)
+        pabiz=adsk.core.Point3D.create(-(paso*cantidad*10)/10,-altura,0)
         lineas.addByTwoPoints(paiz,par)
         lineas.addByTwoPoints(paiz, pabiz)
         lineas.addByTwoPoints(par, pab)
@@ -1549,7 +1551,9 @@ def cremspatt(body,path,z,paso,newComp):
     p = adsk.core.ValueInput.createByReal(paso)
 
     patternInput = pathpattern.createInput(inputentites, path, quantity, p, 1)
-    pathpattern.add(patternInput)
+    #Por algun motivo, el api redondea el valor de p, es necesario modificar el model parameter de la operacion para evitar modificaciones al valor
+    patternFeature = pathpattern.add(patternInput)
+    patternFeature.distance.expression = str(paso*10)
 
 def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,espesorc,z2,radiotornillo,X,newComp, normal_system=False):
     app = adsk.core.Application.get()
@@ -2718,7 +2722,7 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             hb2 = hidebodies(newComp)
             quantity = adsk.core.ValueInput.createByReal(z + 2)
             paso = adsk.core.ValueInput.createByReal(mt.pi * m / 10)
-            crema = cremsketch(m, z, h, ap, T, altura, anchoeng, ah,newComp)
+            crema = cremsketch(m, z, h, ap, T, pitch, altura, anchoeng, ah,newComp)
             if ah==0:
                 esque = rootComp.sketches.item(rootComp.sketches.count - 2)
             else:
@@ -2732,13 +2736,12 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
             cremspatt(diente, crema[3], z + crema[4], pitch, newComp)
             if crema[4] > 0:
                 cremspatt(diente, crema[5], crema[4] + 1, pitch, newComp)
-            extruir(crema[2], anchoeng, newComp, 'Join')
-            if crema[4] > 0:
                 esque = rootComp.sketches.item(rootComp.sketches.count - 1)
                 profe1=esque.profiles.item(0)
                 profe2=esque.profiles.item(1)
                 extruir(profe1, anchoeng, newComp, 'Cut')
                 extruir(profe2, anchoeng, newComp, 'Cut')
+            extruir(crema[2], anchoeng, newComp, 'Join')
             # roto la cremallera
             conta = rootComp.bRepBodies.count
             vec = adsk.core.Vector3D.create(1, 0, 0)
@@ -2753,10 +2756,7 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
                 eshelicoidal=True
             else:
                 eshelicoidal = False
-            if crema[4]>0:
-                fichatecnica(True,False,eshelicoidal,False,False,False,textmodule,ap,z,ah,0,0,0,0,newComp)
-            else:
-                fichatecnica(True, False, eshelicoidal, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp)
+            fichatecnica(True, False, eshelicoidal, False, False, False, textmodule, ap, z, ah, 0, 0, 0, 0,newComp)
             htl(design.timeline.count - nuOfOps)
             showhiddenbodies(hb2,newComp)
         except:
