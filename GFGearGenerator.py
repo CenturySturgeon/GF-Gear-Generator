@@ -1989,6 +1989,10 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('Metric', True)
         standard.listItems.add('English', False)
 
+        HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
+        HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
+        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
         pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
         pitch.isVisible = False
@@ -2696,6 +2700,7 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         z = inputs2.itemById('Z').value
 
         standard = inputs2.itemById('standard').selectedItem.name
+        helicalSystem = inputs2.itemById('HelicalSystem').selectedItem.index
         if standard == 'Metric':
             m=inputs2.itemById('Module').value*10
             anchoeng=inputs2.itemById('RackThickness_mm').value
@@ -2711,12 +2716,17 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
 
             # Text expressions
             textmodule = "p= "+ inputs2.itemById('Pitch').expression
-
+        
         ap = inputs2.itemById('PressureAngle').value
         ah = inputs2.itemById('HelixAngle').value
-        T = mt.pi * m / 2
+        modt = m
+        if bool(helicalSystem):
+            modt = m / mt.cos(ah)
+            ap = mt.atan(mt.tan(ap)/mt.cos(ah))
+
+        T = mt.pi * modt / 2
         h = 2.25 * m
-        pitch = (mt.pi * m / 10)
+        pitch = (mt.pi * modt / 10)
         try:
             cuentaprevios=rootComp.sketches.count
             hb2 = hidebodies(newComp)
