@@ -1989,9 +1989,14 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         standard.listItems.add('Metric', True)
         standard.listItems.add('English', False)
 
+        RackType = inputs.addButtonRowCommandInput('RackType','Rack Type', False)
+        RackType.listItems.add('Straight\nRecommended for spur gears.',True,'Resources/Recto')
+        RackType.listItems.add('Helical\nRecommended for helical gears.',False,'Resources/Helical')
+
         HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
         HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
         HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+        HelicalSystem.isVisible = False
 
         inputs.addValueInput('Module', 'Module [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'Module', .03)))
         pitch = inputs.addValueInput('Pitch', 'Pitch [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'Pitch', 23.460456)))
@@ -2003,7 +2008,8 @@ class cmdDef7PressedEventHandler(adsk.core.CommandCreatedEventHandler):
         RackThickness_in.isVisible = False
 
         inputs.addFloatSpinnerCommandInput('PressureAngle', 'Pressure angle [°]', 'deg', 14.5, 30, 0.5, get(self, 'PressureAngle', 14.5))
-        inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 89, 0.5, get(self, 'HelixAngle', 0))
+        HA = inputs.addFloatSpinnerCommandInput('HelixAngle', 'Helix angle [°]', 'deg', 0, 89, 0.5, get(self, 'HelixAngle', 0))
+        HA.isVisible = False
         inputs.addValueInput('RackHeight_mm', 'Rack height [mm]', 'mm', adsk.core.ValueInput.createByReal(get(self, 'RackHeight_mm', 1)))
         RackHeight_in = inputs.addValueInput('RackHeight_in', 'Rack height [in]', 'in', adsk.core.ValueInput.createByReal(get(self, 'RackHeight_in', .635)))
         RackHeight_in.isVisible = False
@@ -2062,6 +2068,18 @@ class Rack_ChangedHandler(adsk.core.InputChangedEventHandler):
                     # Height Value Inputs
                     inputs2.itemById('RackHeight_mm').isVisible = True
                     inputs2.itemById('RackHeight_in').isVisible = False
+
+            if changedInput.id == 'RackType':
+                if not bool(inputs2.itemById('RackType').selectedItem.index):
+                    inputs2.itemById('HelicalSystem').isVisible = False
+                    inputs2.itemById('HelixAngle').isVisible = False
+                else:
+                    inputs2.itemById('HelicalSystem').isVisible = True
+                    inputs2.itemById('HelixAngle').isVisible = True
+
+                
+
+
         except:
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
@@ -2242,7 +2260,7 @@ class cmdDef11PressedEventHandler(adsk.core.CommandCreatedEventHandler):
 
         HelicalSystem = inputs.addButtonRowCommandInput('HelicalSystem','Helical System', False)
         HelicalSystem.listItems.add('Radial\n+Holds spur gear geommetry/dimmensions.\n-Has to use special cutting tools, one for each helix angle.',True,'Resources/Helical')
-        HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
+        #HelicalSystem.listItems.add('Normal\n+Uses spur gear cutting tools.\n-Doesn\'t hold spur gear geommetry/dimmensions so it can\'t directly replace them.',False,'Resources/Helical')
 
         #usar clock wise como rosca izquierda o derecha
         inputs.addBoolValueInput('LeftThreaded', 'Left threaded', True, '', get(self, 'LeftThreaded', False))
@@ -2719,6 +2737,9 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         
         ap = inputs2.itemById('PressureAngle').value
         ah = inputs2.itemById('HelixAngle').value
+        # If the rack type is straight, helix angle is certainly 0.
+        if not bool(inputs2.itemById('RackType').selectedItem.index):
+            ah = 0
         modt = m
         if bool(helicalSystem):
             modt = m / mt.cos(ah)
@@ -3227,7 +3248,7 @@ def run(context):
         cmdDef4=ui.commandDefinitions.addButtonDefinition('NC4','Simple/Double Helical Gear','Creates a standard simple/double helical gear. ','Resources/Helical')
         cmdDef5=ui.commandDefinitions.addButtonDefinition('NC5','Simple/Double Non-Standard Internal Helical Gear.','Creates a non-standard simple/double internal helical gear.','Resources/NoStdr')
         cmdDef6=ui.commandDefinitions.addButtonDefinition('NC6','Simple/Double Internal Helical Gear.','Creates a standard simple/double internal helical gear.','Resources/InteriorGear')
-        cmdDef7=ui.commandDefinitions.addButtonDefinition('NC7','Helical/Straight Gear Rack','Creates a gear rack.','Resources/Rack')
+        cmdDef7=ui.commandDefinitions.addButtonDefinition('NC7','Straight/Helical Gear Rack','Creates a gear rack.','Resources/Rack')
         cmdDef8=ui.commandDefinitions.addButtonDefinition('NC8','90° Bevel Gears','Creates a standard pair of bevel gears with intersecting axes at 90°.','Resources/Conicos')
         cmdDef9=ui.commandDefinitions.addButtonDefinition('NC9','Profile Shifted Spur Gear','Creates a spur gear using "Profile Shifting".','Resources/Recto')
         cmdDef10=ui.commandDefinitions.addButtonDefinition('NC10','Profile Shifted Helical Gear','Creates a helical gear using "Profile Shifting".','Resources/Helical')
