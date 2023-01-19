@@ -1548,12 +1548,13 @@ def cremspatt(body,path,z,paso,newComp):
     inputentites = adsk.core.ObjectCollection.create()
     inputentites.add(body)
     quantity = adsk.core.ValueInput.createByReal(z)
-    p = adsk.core.ValueInput.createByReal(paso)
+    p = adsk.core.ValueInput.createByString(str(paso)+'mm')
 
     patternInput = pathpattern.createInput(inputentites, path, quantity, p, 1)
     #Por algun motivo, el api redondea el valor de p, es necesario modificar el model parameter de la operacion para evitar modificaciones al valor
     patternFeature = pathpattern.add(patternInput)
-    patternFeature.distance.expression = str(paso*10)
+    #Agrega el mm para que si el usuario tiene por default las unidades en in no las ignoer
+    patternFeature.distance.expression = str(paso*10)+"mm"
 
 def fichatecnica(Fc,escorona,eshelicoidal,esconico,esgusano,esPS,modulo,ap,z,ah,espesorc,z2,radiotornillo,X,newComp, normal_system=False):
     app = adsk.core.Application.get()
@@ -2729,6 +2730,7 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
 
         elif standard == 'English':
             m=25.4/(inputs2.itemById('Pitch').value/2.54)
+            # ui.messageBox(str(m))
             anchoeng=inputs2.itemById('RackThickness_in').value
             altura = inputs2.itemById('RackHeight_in').value
 
@@ -2748,6 +2750,7 @@ class cmdDef7OKButtonPressedEventHandler(adsk.core.CommandEventHandler):
         T = mt.pi * modt / 2
         h = 2.25 * m
         pitch = (mt.pi * modt / 10)
+        # ui.messageBox(str(pitch))
         try:
             cuentaprevios=rootComp.sketches.count
             hb2 = hidebodies(newComp)
