@@ -1,2 +1,2 @@
 # GF-Gear-Generator
-Main repo for Autodesk GF Gear Generator (created by Juan Gras).
+Main repo of the GF Gear Generator for Autodesk's Fusion 360.
