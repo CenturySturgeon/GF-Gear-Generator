@@ -675,6 +675,11 @@ def sketchcon(x,y,x2,y2,z,z2,rp,rp2,rf,ra,Ttda,m,aok, newComp):
         linepp=lines.addByTwoPoints(puntocon,puntop)
         linecenter=lines.addByTwoPoints(puntosup,puntocon)
 
+        pointInput = rootComp.constructionPoints.createInput()
+        pointInput.setByTwoEdges(linead, linepp)
+        conpoint = rootComp.constructionPoints.add(pointInput)
+        conpoint.name = "Align Point"
+
         path=newComp.features.createPath(linepp, False)
         guiderail=newComp.features.createPath(linead, False)
 
