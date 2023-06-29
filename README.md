@@ -11,7 +11,7 @@ I truly believe that by opening up this project, we can collectively improve and
 
 Thank you for joining me on this journey, and I look forward to witnessing the growth and evolution of this project together.
 
-****************************************** 29/06/2023 Updates *************************************
+*********************************************** 29/06/2023 Updates ************************************************
 
 The GFGG is about to undergo some great code quality improvements as it will follow the OOP structure I'm using for STLGears.com . To understand what will be changed I've added the UML diagram bellow so you can get an idea of the stuff that's to come:
 
